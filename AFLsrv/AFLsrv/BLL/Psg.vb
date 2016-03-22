@@ -17,19 +17,20 @@ Namespace SCP.BLL
     Public Class Psg
 #Region "constructor"
         Public Sub New()
-            Me.New(0, 0, String.Empty, String.Empty, FormatDateTime("01/01/1900", DateFormat.GeneralDate), String.Empty, FormatDateTime("01/01/1900", DateFormat.GeneralDate), 0, 0, 0, 0)
+            Me.New(0, 0, String.Empty, String.Empty, FormatDateTime("01/01/1900", DateFormat.GeneralDate), String.Empty, FormatDateTime("01/01/1900", DateFormat.GeneralDate), 0, 0, 0, 0, String.Empty)
         End Sub
-        Public Sub New(m_Id As Integer, _
-                       m_hsId As Integer, _
-                       m_Cod As String, _
-                       m_Descr As String, _
-                       m_lastReceived As Date, _
-                       m_marcamodello As String, _
-                       m_installationDate As Date, _
-                       m_Latitude As Decimal, _
-                       m_Longitude As Decimal, _
-                       m_stato As Integer, _
-                       m_currentValue As Integer)
+        Public Sub New(m_Id As Integer,
+                       m_hsId As Integer,
+                       m_Cod As String,
+                       m_Descr As String,
+                       m_lastReceived As Date,
+                       m_marcamodello As String,
+                       m_installationDate As Date,
+                       m_Latitude As Decimal,
+                       m_Longitude As Decimal,
+                       m_stato As Integer,
+                       m_currentValue As Integer,
+                       m_luxCod As String)
             Id = m_Id
             hsId = m_hsId
             Cod = m_Cod
@@ -45,6 +46,7 @@ Namespace SCP.BLL
             stato = m_stato
 
             currentValue = m_currentValue
+            luxCod = m_luxCod
         End Sub
 #End Region
 
@@ -101,6 +103,16 @@ Namespace SCP.BLL
                 Return Nothing
             End If
             Return DataAccessHelper.GetDataAccess.Psg_ReadByCod(hsId, Cod)
+        End Function
+
+        Public Shared Function ReadByLux(hsId As Integer, luxCod As String) As List(Of Psg)
+            If hsId <= 0 Then
+                Return Nothing
+            End If
+            If String.IsNullOrEmpty(luxCod) Then
+                Return Nothing
+            End If
+            Return DataAccessHelper.GetDataAccess.Psg_ReadByLux(hsId, luxCod)
         End Function
 
 
@@ -178,6 +190,7 @@ Namespace SCP.BLL
 
         Public Property stato As Integer
         Public Property currentValue As Integer
+        Public Property luxCod As String
 
 
 #End Region

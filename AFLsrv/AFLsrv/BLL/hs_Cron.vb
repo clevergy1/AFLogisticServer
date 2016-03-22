@@ -79,7 +79,7 @@ Namespace SCP.BLL
             Dim retVal As Boolean = False
             retVal = DataAccessHelper.GetDataAccess.hs_Cron_Del(CronId)
             If retVal = True Then
-                DataAccessHelper.GetDataAccess.hs_Cron_Profile_Clear(CronId)
+                DataAccessHelper.GetDataAccess.hs_amb_Profile_Clear(CronId)
             End If
             Return retVal
         End Function

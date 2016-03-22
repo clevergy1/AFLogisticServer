@@ -271,10 +271,11 @@ Namespace SCP.DAL
         Public MustOverride Function Lux_Del(Id As Integer) As Boolean
         Public MustOverride Function Lux_List(hsId As Integer) As List(Of Lux)
         Public MustOverride Function Lux_Read(Id As Integer) As Lux
+        Public MustOverride Function Lux_ReadByAmb(hsId As Integer, IdAmbiente As Integer) As List(Of Lux)
         Public MustOverride Function Lux_ReadByCod(hsId As Integer, Cod As String) As Lux
         Public MustOverride Function Lux_Update(Id As Integer, Cod As String, Descr As String, UserName As String, marcamodello As String, installationDate As Date) As Boolean
         Public MustOverride Function Lux_setStatus(hsId As Integer, Cod As String, stato As Integer) As Boolean
-        Public MustOverride Function Lux_setValue(hsId As Integer, Cod As String, WorkingTimeCounter As Decimal, PowerOnCycleCounter As Decimal) As Boolean
+        Public MustOverride Function Lux_setValue(hsId As Integer, Cod As String, LightON As Boolean, WorkingTimeCounter As Decimal, PowerOnCycleCounter As Decimal, CurrentMode As Integer, forcedOn As Boolean, forcedOff As Boolean) As Boolean
         Public MustOverride Function Lux_setGeoLocation(Id As Integer, Latitude As Decimal, Longitude As Decimal) As Boolean
         Public MustOverride Function Lux_setLightByCod(hsId As Integer, Cod As String, LightON As Boolean) As Boolean
 #End Region
@@ -286,14 +287,14 @@ Namespace SCP.DAL
         Public MustOverride Function Lux_replacement_history_Update(Id As Integer, marcamodello As String, installationDate As Date, note As String, userName As String) As Boolean
 #End Region
 #Region "log_Lux"
-        Public MustOverride Function log_Lux_Add(hsId As Integer, _
-                                                 Cod As String, _
-                                                 Descr As String, _
-                                                 WorkingTimeCounter As Decimal, _
-                                                 PowerOnCycleCounter As Decimal, _
-                                                 stato As Integer, _
-                                                 LightON As Boolean, _
-                                                 dtLog As Date) As Boolean
+        Public MustOverride Function log_Lux_Add(hsId As Integer,
+                                                 Cod As String,
+                                                 Descr As String,
+                                                 WorkingTimeCounter As Decimal,
+                                                 PowerOnCycleCounter As Decimal,
+                                                 stato As Integer,
+                                                 LightON As Boolean,
+                                                 dtLog As Date) As Integer
         Public MustOverride Function log_Lux_List(hsId As Integer, Cod As String, fromDate As Date, toDate As Date) As List(Of log_Lux)
         Public MustOverride Function log_Lux_ListPaged(hsId As Integer, Cod As String, fromDate As Date, toDate As Date, rowNumber As Integer) As List(Of log_Lux)
         Public MustOverride Function log_Lux_logNotSent(hsId As Integer, Cod As String) As log_Lux
@@ -321,22 +322,23 @@ Namespace SCP.DAL
         Public MustOverride Function LuxM_replacement_history_Update(Id As Integer, marcamodello As String, installationDate As Date, note As String, userName As String) As Boolean
 #End Region
 #Region "log_LuxM"
-        Public MustOverride Function log_LuxM_Add(hsId As Integer, _
-                                                  Cod As String, _
-                                                  Descr As String, _
-                                                  Voltage As Decimal, _
-                                                  Curr As Decimal, _
-                                                  EnergyCounter As Decimal, _
-                                                  WorkingTimeCounter As Decimal, _
-                                                  PowerOnCycleCounter As Decimal, _
-                                                  Temp As Decimal, _
-                                                  stato As Integer, _
-                                                  LightON As Boolean, _
-                                                  dtLog As Date) As Boolean
+        Public MustOverride Function log_LuxM_Add(hsId As Integer,
+                                                  Cod As String,
+                                                  Descr As String,
+                                                  Voltage As Decimal,
+                                                  Curr As Decimal,
+                                                  EnergyCounter As Decimal,
+                                                  WorkingTimeCounter As Decimal,
+                                                  PowerOnCycleCounter As Decimal,
+                                                  Temp As Decimal,
+                                                  stato As Integer,
+                                                  LightON As Boolean,
+                                                  dtLog As Date) As Integer
         Public MustOverride Function log_LuxM_List(hsId As Integer, Cod As String, fromDate As Date, toDate As Date) As List(Of log_LuxM)
         Public MustOverride Function log_LuxM_ListPaged(hsId As Integer, Cod As String, fromDate As Date, toDate As Date, rowNumber As Integer) As List(Of log_LuxM)
         Public MustOverride Function log_LuxM_logNotSent(hsId As Integer, Cod As String) As log_LuxM
         Public MustOverride Function log_LuxM_setIsSent(Logid As Integer) As Boolean
+        Public MustOverride Function log_LuxM_ReadLast(hsId As Integer, Cod As String) As log_LuxM
 #End Region
 
 #Region "Psg"
@@ -345,6 +347,7 @@ Namespace SCP.DAL
         Public MustOverride Function Psg_List(hsId As Integer) As List(Of Psg)
         Public MustOverride Function Psg_Read(Id As Integer) As Psg
         Public MustOverride Function Psg_ReadByCod(hsId As Integer, Cod As String) As Psg
+        Public MustOverride Function Psg_ReadByLux(hsId As Integer, luxCod As String) As List(Of Psg)
         Public MustOverride Function Psg_Update(Id As Integer, Cod As String, Descr As String, UserName As String, marcamodello As String, installationDate As Date) As Boolean
         Public MustOverride Function Psg_setStatus(hsId As Integer, Cod As String, stato As Integer) As Boolean
         Public MustOverride Function Psg_setValue(hsId As Integer, Cod As String, currentValue As Integer) As Boolean
@@ -368,6 +371,8 @@ Namespace SCP.DAL
         Public MustOverride Function log_Psg_ListPaged(hsId As Integer, Cod As String, fromDate As Date, toDate As Date, rowNumber As Integer) As List(Of log_Psg)
         Public MustOverride Function log_Psg_logNotSent(hsId As Integer, Cod As String) As log_Psg
         Public MustOverride Function log_Psg_setIsSent(Logid As Integer) As Boolean
+        Public MustOverride Function log_Psg_ReadLast(hsId As Integer, Cod As String) As log_Psg
+
 #End Region
 
 #Region "Zrel"
@@ -423,35 +428,35 @@ Namespace SCP.DAL
         Public MustOverride Function hs_Cron_replacement_history_Read(Id As Integer) As hs_Cron_replacement_history
         Public MustOverride Function hs_Cron_replacement_history_Update(Id As Integer, marcamodello As String, installationDate As Date, note As String, userName As String) As Boolean
 #End Region
-#Region "hs_Cron_Profile"
-        Public MustOverride Function hs_Cron_Profile_Add(CronId As Integer, ProfileY As Integer, ProfileNr As Integer, descr As String, ProfileData As Decimal()) As Boolean
-        Public MustOverride Function hs_Cron_Profile_Clear(CronId As Integer) As Boolean
-        Public MustOverride Function hs_Cron_Profile_List(CronId As Integer, ProfileY As Integer) As List(Of hs_Cron_Profile)
-        Public MustOverride Function hs_Cron_Profile_Read(CronId As Integer, ProfileY As Integer, ProfileNr As Integer) As hs_Cron_Profile
-        Public MustOverride Function hs_Cron_Profile_Update(CronId As Integer, ProfileY As Integer, ProfileNr As Integer, descr As String, ProfileData As Decimal()) As Boolean
+#Region "hs_amb_Profile"
+        Public MustOverride Function hs_amb_Profile_Add(CronId As Integer, ProfileY As Integer, ProfileNr As Integer, descr As String, ProfileData As Decimal()) As Boolean
+        Public MustOverride Function hs_amb_Profile_Clear(CronId As Integer) As Boolean
+        Public MustOverride Function hs_amb_Profile_List(CronId As Integer, ProfileY As Integer) As List(Of hs_amb_Profile)
+        Public MustOverride Function hs_amb_Profile_Read(CronId As Integer, ProfileY As Integer, ProfileNr As Integer) As hs_amb_Profile
+        Public MustOverride Function hs_amb_Profile_Update(CronId As Integer, ProfileY As Integer, ProfileNr As Integer, descr As String, ProfileData As Decimal()) As Boolean
 #End Region
-#Region "hs_Cron_Profile_Descr"
-        Public MustOverride Function hs_Cron_Profile_Descr_Add(CronId As Integer, ProfileNr As Integer, descr As String) As Boolean
-        Public MustOverride Function hs_Cron_Profile_Descr_Del(CronId As Integer, ProfileNr As Integer) As Boolean
-        Public MustOverride Function hs_Cron_Profile_Descr_List(CronId As Integer) As List(Of hs_Cron_Profile_Descr)
-        Public MustOverride Function hs_Cron_Profile_Descr_Read(CronId As Integer, ProfileNr As Integer) As hs_Cron_Profile_Descr
-        Public MustOverride Function hs_Cron_Profile_Descr_Update(CronId As Integer, ProfileNr As Integer, descr As String) As Boolean
+#Region "hs_amb_Profile_Descr"
+        Public MustOverride Function hs_amb_Profile_Descr_Add(CronId As Integer, ProfileNr As Integer, descr As String) As Boolean
+        Public MustOverride Function hs_amb_Profile_Descr_Del(CronId As Integer, ProfileNr As Integer) As Boolean
+        Public MustOverride Function hs_amb_Profile_Descr_List(CronId As Integer) As List(Of hs_amb_Profile_Descr)
+        Public MustOverride Function hs_amb_Profile_Descr_Read(CronId As Integer, ProfileNr As Integer) As hs_amb_Profile_Descr
+        Public MustOverride Function hs_amb_Profile_Descr_Update(CronId As Integer, ProfileNr As Integer, descr As String) As Boolean
 #End Region
-#Region "hs_Cron_Profile_Tasks"
-        Public MustOverride Function hs_Cron_Profile_Tasks_Add(CronId As Integer, ProfileNr As Integer, Subject As String, StartDate As Date, EndDate As Date, RecurrencePattern As String, ExceptionAppointments As String, yearsRepeatable As Boolean) As Boolean
-        Public MustOverride Function hs_Cron_Profile_Tasks_Del(CronId As Integer, ProfileNr As Integer) As Boolean
-        Public MustOverride Function hs_Cron_Profile_Tasks_List(CronId As Integer) As List(Of hs_Cron_Profile_Tasks)
-        Public MustOverride Function hs_Cron_Profile_Tasks_ListAll() As List(Of hs_Cron_Profile_Tasks)
-        Public MustOverride Function hs_Cron_Profile_Tasks_Read(TaskId As Integer) As hs_Cron_Profile_Tasks
-        Public MustOverride Function hs_Cron_Profile_Tasks_Update(TaskId As Integer, ProfileNr As Integer, Subject As String, StartDate As Date, EndDate As Date, RecurrencePattern As String, ExceptionAppointments As String, yearsRepeatable As Boolean) As Boolean
+#Region "hs_amb_Profile_Tasks"
+        Public MustOverride Function hs_amb_Profile_Tasks_Add(CronId As Integer, ProfileNr As Integer, Subject As String, StartDate As Date, EndDate As Date, RecurrencePattern As String, ExceptionAppointments As String, yearsRepeatable As Boolean) As Boolean
+        Public MustOverride Function hs_amb_Profile_Tasks_Del(CronId As Integer, ProfileNr As Integer) As Boolean
+        Public MustOverride Function hs_amb_Profile_Tasks_List(CronId As Integer) As List(Of hs_amb_Profile_Tasks)
+        Public MustOverride Function hs_amb_Profile_Tasks_ListAll() As List(Of hs_amb_Profile_Tasks)
+        Public MustOverride Function hs_amb_Profile_Tasks_Read(TaskId As Integer) As hs_amb_Profile_Tasks
+        Public MustOverride Function hs_amb_Profile_Tasks_Update(TaskId As Integer, ProfileNr As Integer, Subject As String, StartDate As Date, EndDate As Date, RecurrencePattern As String, ExceptionAppointments As String, yearsRepeatable As Boolean) As Boolean
 #End Region
-#Region "hs_Cron_Calendar"
-        Public MustOverride Function hs_Cron_Calendar_Add(CronId As Integer, Calyear As Integer, Calmonth As Integer, monthData As Integer()) As Boolean
-        Public MustOverride Function hs_Cron_Calendar_Clear(CronId) As Boolean
-        Public MustOverride Function hs_Cron_Calendar_Read(CronId As Integer, Calyear As Integer, Calmonth As Integer) As hs_Cron_Calendar
-        Public MustOverride Function hs_Cron_Calendar_Update(CronId As Integer, Calyear As Integer, Calmonth As Integer, TasksForDesired As Integer(), DesiredMonthData As Integer()) As Boolean
-        Public MustOverride Function hs_Cron_Calendar_UpdateDesired(CronId As Integer, Calyear As Integer, Calmonth As Integer, DesiredMonthData As Integer()) As Boolean
-        Public MustOverride Function hs_Cron_Calendar_UpdateReal(CronId As Integer, Calyear As Integer, Calmonth As Integer, RealMonthData As Integer()) As Boolean
+#Region "hs_amb_Calendar"
+        Public MustOverride Function hs_amb_Calendar_Add(CronId As Integer, Calyear As Integer, Calmonth As Integer, monthData As Integer()) As Boolean
+        Public MustOverride Function hs_amb_Calendar_Clear(CronId) As Boolean
+        Public MustOverride Function hs_amb_Calendar_Read(CronId As Integer, Calyear As Integer, Calmonth As Integer) As hs_amb_Calendar
+        Public MustOverride Function hs_amb_Calendar_Update(CronId As Integer, Calyear As Integer, Calmonth As Integer, TasksForDesired As Integer(), DesiredMonthData As Integer()) As Boolean
+        Public MustOverride Function hs_amb_Calendar_UpdateDesired(CronId As Integer, Calyear As Integer, Calmonth As Integer, DesiredMonthData As Integer()) As Boolean
+        Public MustOverride Function hs_amb_Calendar_UpdateReal(CronId As Integer, Calyear As Integer, Calmonth As Integer, RealMonthData As Integer()) As Boolean
 #End Region
 #Region "log_hs_Cron"
         Public MustOverride Function log_hs_Cron_Add(hsId As Integer, SetPoint As Decimal, CronCod As String, CronDescr As String, stato As Integer, dtLog As Date) As Boolean
@@ -460,6 +465,28 @@ Namespace SCP.DAL
         Public MustOverride Function log_hs_Cron_ListAll(hsId As Integer, fromDate As Date, toDate As Date) As List(Of log_hs_Cron)
         Public MustOverride Function log_hs_Cron_logNotSent(hsId As Integer, CronCod As String) As log_hs_Cron
         Public MustOverride Function log_hs_Cron_setIsSent(Logid As Integer) As Boolean
+        Public MustOverride Function log_hs_Cron_ReadLast(hsId As Integer, CronCod As String) As log_hs_Cron
+#End Region
+#Region "LuxM_last"
+        Public MustOverride Function LuxM_last_Add(hsId As Integer, Cod As String, lastLog As Integer, lastdtLog As Date) As Boolean
+        Public MustOverride Function LuxM_last_Upd(hsId As Integer, Cod As String, lastLog As Integer, lastdtLog As Date) As Boolean
+        Public MustOverride Function LuxM_last_Read(hsId As Integer, Cod As String) As LuxM_last
+#End Region
+#Region "Lux_last"
+        Public MustOverride Function Lux_last_Add(hsId As Integer, Cod As String, lastLog As Integer, lastdtLog As Date) As Boolean
+        Public MustOverride Function Lux_last_Upd(hsId As Integer, Cod As String, lastLog As Integer, lastdtLog As Date) As Boolean
+        Public MustOverride Function Lux_last_Read(hsId As Integer, Cod As String) As Lux_last
+#End Region
+#Region "Ambienti"
+        'Public MustOverride Function Ambienti_Add(IdAmbiente As Integer, Cod As String, Descr As String, UserName As String, marcamodello As String, installationDate As Date) As Boolean
+        ' Public MustOverride Function Ambienti_Del(Id As Integer) As Boolean
+        Public MustOverride Function Ambienti_List(hsId As Integer) As List(Of Ambienti)
+        Public MustOverride Function Ambienti_Read(IdAmbiente As Integer) As Ambienti
+        'Public MustOverride Function Ambienti_ReadByCod(IdAmbiente As Integer, Cod As String) As Ambienti
+        'Public MustOverride Function Ambienti_Update(Id As Integer, Cod As String, Descr As String, UserName As String, marcamodello As String, installationDate As Date) As Boolean
+        'Public MustOverride Function Ambienti_setStatus(IdAmbiente As Integer, Cod As String, stato As Integer) As Boolean
+        'Public MustOverride Function Ambienti_setValue(IdAmbiente As Integer, Cod As String, currentValue As Integer) As Boolean
+        'Public MustOverride Function Ambienti_setGeoLocation(Id As Integer, Latitude As Decimal, Longitude As Decimal) As Boolean
 #End Region
     End Class
 End Namespace

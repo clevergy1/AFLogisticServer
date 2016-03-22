@@ -42,14 +42,14 @@ Namespace SCP.BLL
 #End Region
 
 #Region "methods"
-        Public Shared Function Add(hsId As Integer, _
-                                   Cod As String, _
-                                   Descr As String, _
-                                   WorkingTimeCounter As Decimal, _
-                                   PowerOnCycleCounter As Decimal, _
-                                   stato As Integer, _
-                                   LightON As Boolean, _
-                                   dtLog As Date) As Boolean
+        Public Shared Function Add(hsId As Integer,
+                                   Cod As String,
+                                   Descr As String,
+                                   WorkingTimeCounter As Decimal,
+                                   PowerOnCycleCounter As Decimal,
+                                   stato As Integer,
+                                   LightON As Boolean,
+                                   dtLog As Date) As Integer
             If hsId <= 0 Then
                 Return False
             End If

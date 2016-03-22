@@ -27,3 +27,32 @@ C:\progetti\AFLogistics\server\AFLsrv\AFLsrv\obj\Debug\AFLsrv.xml
 C:\progetti\AFLogistics\server\AFLsrv\AFLsrv\obj\Debug\AFLsrv.pdb
 C:\progetti\AFLogistics\server\AFLsrv\AFLsrv\bin\Telerik.Windows.Controls.dll
 C:\progetti\AFLogistics\server\AFLsrv\AFLsrv\bin\Telerik.Windows.Controls.Scheduler.dll
+D:\clevergy\PROGETTO AFLOGISTIC\AFLogisticServer\AFLsrv\AFLsrv\bin\AFLsrv.dll.config
+D:\clevergy\PROGETTO AFLOGISTIC\AFLogisticServer\AFLsrv\AFLsrv\bin\AFLsrv.dll
+D:\clevergy\PROGETTO AFLOGISTIC\AFLogisticServer\AFLsrv\AFLsrv\bin\AFLsrv.pdb
+D:\clevergy\PROGETTO AFLOGISTIC\AFLogisticServer\AFLsrv\AFLsrv\bin\AFLsrv.xml
+D:\clevergy\PROGETTO AFLOGISTIC\AFLogisticServer\AFLsrv\AFLsrv\bin\Microsoft.AspNet.SignalR.Core.dll
+D:\clevergy\PROGETTO AFLOGISTIC\AFLogisticServer\AFLsrv\AFLsrv\bin\Microsoft.AspNet.SignalR.SystemWeb.dll
+D:\clevergy\PROGETTO AFLOGISTIC\AFLogisticServer\AFLsrv\AFLsrv\bin\Microsoft.Owin.Cors.dll
+D:\clevergy\PROGETTO AFLOGISTIC\AFLogisticServer\AFLsrv\AFLsrv\bin\Microsoft.Owin.dll
+D:\clevergy\PROGETTO AFLOGISTIC\AFLogisticServer\AFLsrv\AFLsrv\bin\Microsoft.Owin.Host.SystemWeb.dll
+D:\clevergy\PROGETTO AFLOGISTIC\AFLogisticServer\AFLsrv\AFLsrv\bin\Microsoft.Owin.Security.dll
+D:\clevergy\PROGETTO AFLOGISTIC\AFLogisticServer\AFLsrv\AFLsrv\bin\Microsoft.Web.Infrastructure.dll
+D:\clevergy\PROGETTO AFLOGISTIC\AFLogisticServer\AFLsrv\AFLsrv\bin\Newtonsoft.Json.dll
+D:\clevergy\PROGETTO AFLOGISTIC\AFLogisticServer\AFLsrv\AFLsrv\bin\Owin.dll
+D:\clevergy\PROGETTO AFLOGISTIC\AFLogisticServer\AFLsrv\AFLsrv\bin\System.Web.Cors.dll
+D:\clevergy\PROGETTO AFLOGISTIC\AFLogisticServer\AFLsrv\AFLsrv\bin\Telerik.Windows.Controls.dll
+D:\clevergy\PROGETTO AFLOGISTIC\AFLogisticServer\AFLsrv\AFLsrv\bin\Telerik.Windows.Controls.Scheduler.dll
+D:\clevergy\PROGETTO AFLOGISTIC\AFLogisticServer\AFLsrv\AFLsrv\bin\Microsoft.AspNet.SignalR.Core.xml
+D:\clevergy\PROGETTO AFLOGISTIC\AFLogisticServer\AFLsrv\AFLsrv\bin\Microsoft.AspNet.SignalR.SystemWeb.xml
+D:\clevergy\PROGETTO AFLOGISTIC\AFLogisticServer\AFLsrv\AFLsrv\bin\Microsoft.Owin.xml
+D:\clevergy\PROGETTO AFLOGISTIC\AFLogisticServer\AFLsrv\AFLsrv\bin\Microsoft.Owin.Cors.xml
+D:\clevergy\PROGETTO AFLOGISTIC\AFLogisticServer\AFLsrv\AFLsrv\bin\Microsoft.Owin.Host.SystemWeb.xml
+D:\clevergy\PROGETTO AFLOGISTIC\AFLogisticServer\AFLsrv\AFLsrv\bin\Microsoft.Owin.Security.xml
+D:\clevergy\PROGETTO AFLOGISTIC\AFLogisticServer\AFLsrv\AFLsrv\bin\Newtonsoft.Json.xml
+D:\clevergy\PROGETTO AFLOGISTIC\AFLogisticServer\AFLsrv\AFLsrv\obj\Debug\Resources.resources
+D:\clevergy\PROGETTO AFLOGISTIC\AFLogisticServer\AFLsrv\AFLsrv\obj\Debug\AFLsrv.vbproj.GenerateResource.Cache
+D:\clevergy\PROGETTO AFLOGISTIC\AFLogisticServer\AFLsrv\AFLsrv\obj\Debug\AFLsrv.dll
+D:\clevergy\PROGETTO AFLOGISTIC\AFLogisticServer\AFLsrv\AFLsrv\obj\Debug\AFLsrv.xml
+D:\clevergy\PROGETTO AFLOGISTIC\AFLogisticServer\AFLsrv\AFLsrv\obj\Debug\AFLsrv.pdb
+D:\clevergy\PROGETTO AFLOGISTIC\AFLogisticServer\AFLsrv\AFLsrv\obj\Debug\AFLsrv.vbprojResolveAssemblyReference.cache

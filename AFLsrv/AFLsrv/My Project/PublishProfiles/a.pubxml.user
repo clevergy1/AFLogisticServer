@@ -6,101 +6,101 @@ by editing this MSBuild file. In order to learn more about this please visit htt
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <TimeStampOfAssociatedLegacyPublishXmlFile />
-    <_PublishTargetUrl>C:\Progetti\AFLogistics\ServerCompilato</_PublishTargetUrl>
+    <_PublishTargetUrl>D:\clevergy\PROGETTO AFLOGISTIC\Af_Server_pubblicato</_PublishTargetUrl>
   </PropertyGroup>
   <ItemGroup>
     <File Include="bin/AFLsrv.dll">
-      <publishTime>12/14/2015 16:44:08</publishTime>
+      <publishTime>03/16/2016 12:09:08</publishTime>
     </File>
     <File Include="bin/AFLsrv.xml">
-      <publishTime>12/14/2015 16:44:08</publishTime>
+      <publishTime>03/16/2016 12:09:08</publishTime>
     </File>
     <File Include="bin/Microsoft.AspNet.SignalR.Core.dll">
-      <publishTime>07/14/2015 11:42:53</publishTime>
+      <publishTime>03/08/2016 09:23:23</publishTime>
     </File>
     <File Include="bin/Microsoft.AspNet.SignalR.SystemWeb.dll">
-      <publishTime>07/14/2015 11:42:53</publishTime>
+      <publishTime>03/08/2016 09:23:23</publishTime>
     </File>
     <File Include="bin/Microsoft.Owin.Cors.dll">
-      <publishTime>07/14/2015 11:44:21</publishTime>
+      <publishTime>03/08/2016 09:23:23</publishTime>
     </File>
     <File Include="bin/Microsoft.Owin.dll">
-      <publishTime>07/14/2015 11:44:21</publishTime>
+      <publishTime>03/08/2016 09:23:23</publishTime>
     </File>
     <File Include="bin/Microsoft.Owin.Host.SystemWeb.dll">
-      <publishTime>07/14/2015 11:42:53</publishTime>
+      <publishTime>03/08/2016 09:23:23</publishTime>
     </File>
     <File Include="bin/Microsoft.Owin.Security.dll">
-      <publishTime>07/14/2015 11:42:53</publishTime>
+      <publishTime>03/08/2016 09:23:23</publishTime>
     </File>
     <File Include="bin/Microsoft.Web.Infrastructure.dll">
-      <publishTime>07/14/2015 11:47:10</publishTime>
+      <publishTime>03/08/2016 09:23:23</publishTime>
     </File>
     <File Include="bin/Newtonsoft.Json.dll">
-      <publishTime>07/14/2015 11:42:52</publishTime>
+      <publishTime>03/08/2016 09:23:23</publishTime>
     </File>
     <File Include="bin/Owin.dll">
-      <publishTime>07/14/2015 11:42:52</publishTime>
+      <publishTime>03/08/2016 09:23:23</publishTime>
     </File>
     <File Include="bin/System.Web.Cors.dll">
-      <publishTime>07/14/2015 11:44:21</publishTime>
+      <publishTime>03/08/2016 09:23:23</publishTime>
     </File>
     <File Include="bin/Telerik.Windows.Controls.dll">
-      <publishTime>04/19/2011 11:51:14</publishTime>
+      <publishTime>03/08/2016 09:23:23</publishTime>
     </File>
     <File Include="bin/Telerik.Windows.Controls.Scheduler.dll">
-      <publishTime>04/19/2011 11:58:16</publishTime>
+      <publishTime>03/08/2016 09:23:23</publishTime>
     </File>
     <File Include="Global.asax">
-      <publishTime>07/14/2015 11:58:17</publishTime>
+      <publishTime>03/08/2016 09:23:23</publishTime>
     </File>
     <File Include="hsBackDoor.ashx">
-      <publishTime>07/17/2015 17:46:07</publishTime>
+      <publishTime>03/08/2016 09:23:23</publishTime>
     </File>
     <File Include="Index.html">
-      <publishTime>07/14/2015 11:45:46</publishTime>
+      <publishTime>03/08/2016 09:23:23</publishTime>
     </File>
     <File Include="initRoles.aspx">
-      <publishTime>07/14/2015 12:31:20</publishTime>
+      <publishTime>03/08/2016 09:23:23</publishTime>
     </File>
     <File Include="Modules/hsConnectionLost.html">
-      <publishTime>07/17/2015 15:47:31</publishTime>
+      <publishTime>03/08/2016 09:23:23</publishTime>
     </File>
     <File Include="Modules/hsConnectionRestored.html">
-      <publishTime>07/17/2015 15:47:31</publishTime>
+      <publishTime>03/08/2016 09:23:23</publishTime>
     </File>
     <File Include="Modules/hsCronCalendarOffLine.html">
-      <publishTime>07/17/2015 15:47:31</publishTime>
+      <publishTime>03/08/2016 09:23:23</publishTime>
     </File>
     <File Include="Modules/hsStatusAlarmOFF.html">
-      <publishTime>07/17/2015 15:47:31</publishTime>
+      <publishTime>03/08/2016 09:23:23</publishTime>
     </File>
     <File Include="Modules/hsStatusAlarmON.html">
-      <publishTime>07/17/2015 15:47:31</publishTime>
+      <publishTime>03/08/2016 09:23:23</publishTime>
     </File>
     <File Include="packages.config">
-      <publishTime>07/14/2015 11:47:10</publishTime>
+      <publishTime>03/08/2016 09:23:23</publishTime>
     </File>
     <File Include="S1.svc">
-      <publishTime>07/14/2015 13:14:42</publishTime>
+      <publishTime>03/08/2016 09:23:23</publishTime>
     </File>
     <File Include="S2.svc">
-      <publishTime>07/14/2015 11:58:17</publishTime>
+      <publishTime>03/08/2016 09:23:23</publishTime>
     </File>
     <File Include="Scripts/jquery-1.6.4.js">
-      <publishTime>07/14/2015 11:42:55</publishTime>
+      <publishTime>03/08/2016 09:23:23</publishTime>
     </File>
     <File Include="Scripts/jquery-1.6.4.min.js">
-      <publishTime>07/14/2015 11:42:55</publishTime>
+      <publishTime>03/08/2016 09:23:23</publishTime>
     </File>
     <File Include="Scripts/jquery.signalR-2.2.0.js">
-      <publishTime>07/14/2015 11:42:55</publishTime>
+      <publishTime>03/08/2016 09:23:23</publishTime>
     </File>
     <File Include="Scripts/jquery.signalR-2.2.0.min.js">
-      <publishTime>07/14/2015 11:42:55</publishTime>
+      <publishTime>03/08/2016 09:23:23</publishTime>
     </File>
     <File Include="Web.config">
-      <publishTime>07/14/2015 13:47:05</publishTime>
+      <publishTime>03/16/2016 12:09:09</publishTime>
     </File>
   </ItemGroup>
 </Project>

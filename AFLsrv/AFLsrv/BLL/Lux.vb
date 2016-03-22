@@ -18,21 +18,28 @@ Namespace SCP.BLL
 
 #Region "constructor"
         Public Sub New()
-            Me.New(0, 0, String.Empty, String.Empty, FormatDateTime("01/01/1900", DateFormat.GeneralDate), String.Empty, FormatDateTime("01/01/1900", DateFormat.GeneralDate), 0, 0, 0, 0, 0, False)
+            Me.New(0, 0, String.Empty, String.Empty, FormatDateTime("01/01/1900", DateFormat.GeneralDate), String.Empty, FormatDateTime("01/01/1900", DateFormat.GeneralDate), 0, 0, 0, 0, 0, False, 0, False, False, False, 0)
         End Sub
-        Public Sub New(m_Id As Integer, _
-                       m_hsId As Integer, _
-                       m_Cod As String, _
-                       m_Descr As String, _
-                       m_lastReceived As Date, _
-                       m_marcamodello As String, _
-                       m_installationDate As Date, _
-                       m_Latitude As Decimal, _
-                       m_Longitude As Decimal, _
-                       m_stato As Integer, _
-                       m_WorkingTimeCounter As Decimal, _
-                       m_PowerOnCycleCounter As Decimal, _
-                       m_LightON As Boolean)
+        Public Sub New(m_Id As Integer,
+                       m_hsId As Integer,
+                       m_Cod As String,
+                       m_Descr As String,
+                       m_lastReceived As Date,
+                       m_marcamodello As String,
+                       m_installationDate As Date,
+                       m_Latitude As Decimal,
+                       m_Longitude As Decimal,
+                       m_stato As Integer,
+                       m_WorkingTimeCounter As Decimal,
+                       m_PowerOnCycleCounter As Decimal,
+                       m_LightON As Boolean,
+                       m_CurrentMode As Integer,
+                       m_forcedOn As Boolean,
+                       m_forcedOff As Boolean,
+                       m_isManual As Boolean,
+                       m_IdAmbiente As Integer)
+
+
             Id = m_Id
             hsId = m_hsId
             Cod = m_Cod
@@ -49,6 +56,13 @@ Namespace SCP.BLL
             WorkingTimeCounter = m_WorkingTimeCounter
             PowerOnCycleCounter = m_PowerOnCycleCounter
             LightON = m_LightON
+
+            CurrentMode = m_CurrentMode
+
+            forcedOn = m_forcedOn
+            forcedOff = m_forcedOff
+            isManual = m_isManual
+            IdAmbiente = m_IdAmbiente
         End Sub
 #End Region
 
@@ -108,6 +122,14 @@ Namespace SCP.BLL
             Return DataAccessHelper.GetDataAccess.Lux_ReadByCod(hsId, Cod)
         End Function
 
+        Public Shared Function ReadByAmb(hsId As Integer, IdAmbiente As Integer) As List(Of Lux)
+            If hsId <= 0 Then
+                Return Nothing
+            End If
+
+            Return DataAccessHelper.GetDataAccess.Lux_ReadByAmb(hsId, IdAmbiente)
+        End Function
+
 
         Public Shared Function Update(Id As Integer, Cod As String, Descr As String, UserName As String, marcamodello As String, installationDate As Date) As Boolean
             If Id <= 0 Then
@@ -141,10 +163,14 @@ Namespace SCP.BLL
             Return retVal
         End Function
 
-        Public Shared Function setValue(hsId As Integer, _
-                                        Cod As String, _
-                                        WorkingTimeCounter As Decimal, _
-                                        PowerOnCycleCounter As Decimal) As Boolean
+        Public Shared Function setValue(hsId As Integer,
+                                        Cod As String,
+                                        LightON As Boolean,
+                                        WorkingTimeCounter As Decimal,
+                                        PowerOnCycleCounter As Decimal,
+                                        CurrentMode As Integer,
+                                        forcedOn As Boolean,
+                                        forcedOff As Boolean) As Boolean
             If hsId <= 0 Then
                 Return False
             End If
@@ -152,7 +178,7 @@ Namespace SCP.BLL
                 Return False
             End If
             Dim retVal As Boolean = False
-            retVal = DataAccessHelper.GetDataAccess.Lux_setValue(hsId, Cod, WorkingTimeCounter, PowerOnCycleCounter)
+            retVal = DataAccessHelper.GetDataAccess.Lux_setValue(hsId, Cod, LightON, WorkingTimeCounter, PowerOnCycleCounter, CurrentMode, forcedOn, forcedOff)
             If retVal = True Then
                 Dim _s As SCP.BLL.HeatingSystem = DataAccessHelper.GetDataAccess.HeatingSystem_Read(hsId)
                 If Not _s Is Nothing Then
@@ -210,6 +236,12 @@ Namespace SCP.BLL
         Public Property WorkingTimeCounter As Decimal
         Public Property PowerOnCycleCounter As Decimal
         Public Property LightON As Boolean
+        Public Property CurrentMode As Integer
+
+        Public Property forcedOn As Boolean
+        Public Property forcedOff As Boolean
+        Public Property isManual As Boolean
+        Public Property IdAmbiente As Integer
 #End Region
     End Class
 End Namespace

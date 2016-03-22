@@ -50,18 +50,18 @@ Namespace SCP.BLL
 #End Region
 
 #Region "methods"
-        Public Shared Function Add(hsId As Integer, _
-                                   Cod As String, _
-                                   Descr As String, _
-                                   Voltage As Decimal, _
-                                   Curr As Decimal, _
-                                   EnergyCounter As Decimal, _
-                                   WorkingTimeCounter As Decimal, _
-                                   PowerOnCycleCounter As Decimal, _
-                                   Temp As Decimal, _
-                                   stato As Integer, _
-                                   LightON As Boolean, _
-                                   dtLog As Date) As Boolean
+        Public Shared Function Add(hsId As Integer,
+                                   Cod As String,
+                                   Descr As String,
+                                   Voltage As Decimal,
+                                   Curr As Decimal,
+                                   EnergyCounter As Decimal,
+                                   WorkingTimeCounter As Decimal,
+                                   PowerOnCycleCounter As Decimal,
+                                   Temp As Decimal,
+                                   stato As Integer,
+                                   LightON As Boolean,
+                                   dtLog As Date) As Integer
             If hsId <= 0 Then
                 Return False
             End If
@@ -107,6 +107,16 @@ Namespace SCP.BLL
                 Return False
             End If
             Return DataAccessHelper.GetDataAccess.log_LuxM_setIsSent(Logid)
+        End Function
+
+        Public Shared Function ReadLast(hsId As Integer, Cod As String) As log_LuxM
+            If hsId <= 0 Then
+                Return Nothing
+            End If
+            If String.IsNullOrEmpty(Cod) Then
+                Return Nothing
+            End If
+            Return DataAccessHelper.GetDataAccess.log_LuxM_ReadLast(hsId, Cod)
         End Function
 #End Region
 

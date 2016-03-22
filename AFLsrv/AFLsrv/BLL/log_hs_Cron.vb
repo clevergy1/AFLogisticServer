@@ -92,6 +92,17 @@ Namespace SCP.BLL
             End If
             Return DataAccessHelper.GetDataAccess.log_hs_Cron_setIsSent(Logid)
         End Function
+
+
+        Public Shared Function ReadLast(hsId As Integer, CronCod As String) As log_hs_Cron
+            If hsId <= 0 Then
+                Return Nothing
+            End If
+            If String.IsNullOrEmpty(CronCod) Then
+                Return Nothing
+            End If
+            Return DataAccessHelper.GetDataAccess.log_hs_Cron_ReadLast(hsId, CronCod)
+        End Function
 #End Region
 
 #Region "public properties"
