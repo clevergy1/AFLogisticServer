@@ -10,10 +10,10 @@ by editing this MSBuild file. In order to learn more about this please visit htt
   </PropertyGroup>
   <ItemGroup>
     <File Include="bin/AFLsrv.dll">
-      <publishTime>03/16/2016 12:09:08</publishTime>
+      <publishTime>04/04/2016 16:22:17</publishTime>
     </File>
     <File Include="bin/AFLsrv.xml">
-      <publishTime>03/16/2016 12:09:08</publishTime>
+      <publishTime>04/04/2016 16:22:17</publishTime>
     </File>
     <File Include="bin/Microsoft.AspNet.SignalR.Core.dll">
       <publishTime>03/08/2016 09:23:23</publishTime>
@@ -100,7 +100,7 @@ by editing this MSBuild file. In order to learn more about this please visit htt
       <publishTime>03/08/2016 09:23:23</publishTime>
     </File>
     <File Include="Web.config">
-      <publishTime>03/16/2016 12:09:09</publishTime>
+      <publishTime>04/04/2016 16:22:17</publishTime>
     </File>
   </ItemGroup>
 </Project>

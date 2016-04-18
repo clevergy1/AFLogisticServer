@@ -55,4 +55,3 @@ D:\clevergy\PROGETTO AFLOGISTIC\AFLogisticServer\AFLsrv\AFLsrv\obj\Debug\AFLsrv.
 D:\clevergy\PROGETTO AFLOGISTIC\AFLogisticServer\AFLsrv\AFLsrv\obj\Debug\AFLsrv.dll
 D:\clevergy\PROGETTO AFLOGISTIC\AFLogisticServer\AFLsrv\AFLsrv\obj\Debug\AFLsrv.xml
 D:\clevergy\PROGETTO AFLOGISTIC\AFLogisticServer\AFLsrv\AFLsrv\obj\Debug\AFLsrv.pdb
-D:\clevergy\PROGETTO AFLOGISTIC\AFLogisticServer\AFLsrv\AFLsrv\obj\Debug\AFLsrv.vbprojResolveAssemblyReference.cache

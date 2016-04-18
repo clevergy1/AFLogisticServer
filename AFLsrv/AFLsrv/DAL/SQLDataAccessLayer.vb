@@ -5638,7 +5638,12 @@ Namespace SCP.DAL
                 IdAmbiente = CInt(reader("IdAmbiente").ToString)
             End If
 
-            Dim _obj As Lux = New Lux(Id, hsId, Cod, Descr, lastReceived, marcamodello, installationDate, Latitude, Longitude, stato, WorkingTimeCounter, PowerOnCycleCounter, LightON, CurrentMode, forcedOn, forcedOff, isManual, IdAmbiente)
+            Dim RemoteConnId As Integer = 0
+            If Not IsDBNull(reader("RemoteConnId")) Then
+                RemoteConnId = CInt(reader("RemoteConnId").ToString)
+            End If
+
+            Dim _obj As Lux = New Lux(Id, hsId, Cod, Descr, lastReceived, marcamodello, installationDate, Latitude, Longitude, stato, WorkingTimeCounter, PowerOnCycleCounter, LightON, CurrentMode, forcedOn, forcedOff, isManual, IdAmbiente, RemoteConnId)
             Return _obj
 
         End Function
@@ -6046,6 +6051,66 @@ Namespace SCP.DAL
             End Using
             Return retVal
         End Function
+
+        Public Overrides Function Lux_setCurrentMode(Id As Integer, currentMode As Integer) As Boolean
+            Dim retVal As Boolean = False
+            Dim sqlString As String = String.Empty
+            sqlString = "update [Lux]"
+            sqlString += " set CurrentMode=@CurrentMode"
+            sqlString += "    ,lastReceived=@lastReceived"
+            sqlString += "   where Id=@Id"
+
+            Dim sqlCmd As SqlCommand = New SqlCommand()
+            sqlCmd.CommandText = sqlString
+            AddParamToSQLCmd(sqlCmd, "@Id", SqlDbType.Int, 0, ParameterDirection.Input, Id)
+            AddParamToSQLCmd(sqlCmd, "@CurrentMode", SqlDbType.Int, 0, ParameterDirection.Input, currentMode)
+            AddParamToSQLCmd(sqlCmd, "@lastReceived", SqlDbType.SmallDateTime, 0, ParameterDirection.Input, Now)
+
+            Using cn As SqlConnection = New SqlConnection(DataAccess.SCP)
+                Try
+                    sqlCmd.Connection = cn
+                    cn.Open()
+                    sqlCmd.ExecuteScalar()
+                    cn.Close()
+                Catch ex As Exception
+                    scriviLog("Lux_setCurrentMode " & ex.Message)
+                    Return retVal
+                End Try
+                retVal = True
+            End Using
+            Return retVal
+        End Function
+
+        Public Overrides Function Lux_setisManual(Id As Integer, isManual As Boolean) As Boolean
+            Dim retVal As Boolean = False
+            Dim sqlString As String = String.Empty
+            sqlString = "update [Lux]"
+            sqlString += " set isManual=@isManual"
+            sqlString += "    ,lastReceived=@lastReceived"
+            sqlString += "   where Id=@Id"
+
+            Dim sqlCmd As SqlCommand = New SqlCommand()
+            sqlCmd.CommandText = sqlString
+            AddParamToSQLCmd(sqlCmd, "@Id", SqlDbType.Int, 0, ParameterDirection.Input, Id)
+            AddParamToSQLCmd(sqlCmd, "@isManual", SqlDbType.Bit, 0, ParameterDirection.Input, isManual)
+            AddParamToSQLCmd(sqlCmd, "@lastReceived", SqlDbType.SmallDateTime, 0, ParameterDirection.Input, Now)
+
+            Using cn As SqlConnection = New SqlConnection(DataAccess.SCP)
+                Try
+                    sqlCmd.Connection = cn
+                    cn.Open()
+                    sqlCmd.ExecuteScalar()
+                    cn.Close()
+                Catch ex As Exception
+                    scriviLog("Lux_setisManual " & ex.Message)
+                    Return retVal
+                End Try
+                retVal = True
+            End Using
+            Return retVal
+        End Function
+
+
 #End Region
 #Region "Lux_replacement_history"
         Private Function prepareRecord_Lux_replacement_history(reader As SqlDataReader) As Lux_replacement_history
@@ -9491,7 +9556,12 @@ Namespace SCP.DAL
                 CronType = CInt(reader("CronType"))
             End If
 
-            Dim _obj As hs_Cron = New hs_Cron(_CronId, _hsId, _SetPoint, _isOn, _TLocal, _CronCod, _CronDescr, _stato, _NoteInterne, marcamodello, installationDate, Latitude, Longitude, CronType)
+            Dim RemoteConnId As Decimal = 0
+            If Not IsDBNull(reader("RemoteConnId")) Then
+                RemoteConnId = CDec(reader("RemoteConnId"))
+            End If
+
+            Dim _obj As hs_Cron = New hs_Cron(_CronId, _hsId, _SetPoint, _isOn, _TLocal, _CronCod, _CronDescr, _stato, _NoteInterne, marcamodello, installationDate, Latitude, Longitude, CronType, RemoteConnId)
             Return _obj
         End Function
 
@@ -10088,8 +10158,10 @@ Namespace SCP.DAL
             Return retVal
         End Function
 #End Region
-#Region "hs_amb_Profile"
-        Private Function preparerecordhs_amb_Profile(reader As SqlDataReader) As hs_amb_Profile
+
+
+#Region "hs_Cron_Profile"
+        Private Function preparerecordhs_Cron_Profile(reader As SqlDataReader) As hs_Cron_Profile
             Dim CronId As Integer = 0
             If Not IsDBNull(reader("CronId")) Then
                 CronId = CInt(reader("CronId").ToString)
@@ -10118,14 +10190,14 @@ Namespace SCP.DAL
                     ProfileData(x) = CDec(ar(x))
                 Next
             End If
-            Dim _obj As hs_amb_Profile = New hs_amb_Profile(CronId, ProfileY, ProfileNr, descr, ProfileData)
+            Dim _obj As hs_Cron_Profile = New hs_Cron_Profile(CronId, ProfileY, ProfileNr, descr, ProfileData)
             Return _obj
         End Function
 
-        Public Overrides Function hs_amb_Profile_Add(CronId As Integer, ProfileY As Integer, ProfileNr As Integer, descr As String, ProfileData() As Decimal) As Boolean
+        Public Overrides Function hs_Cron_Profile_Add(CronId As Integer, ProfileY As Integer, ProfileNr As Integer, descr As String, ProfileData() As Decimal) As Boolean
             Dim retVal As Integer = 0
             Dim sqlString As String = String.Empty
-            sqlString = "INSERT INTO [hs_amb_Profile]"
+            sqlString = "INSERT INTO [hs_Cron_Profile]"
             sqlString += "           ([CronId]"
             sqlString += "           ,[ProfileY]"
             sqlString += "           ,[ProfileNr]"
@@ -10169,10 +10241,10 @@ Namespace SCP.DAL
             Return retVal
         End Function
 
-        Public Overrides Function hs_amb_Profile_Clear(CronId As Integer) As Boolean
+        Public Overrides Function hs_Cron_Profile_Clear(CronId As Integer) As Boolean
             Dim retVal As Boolean = False
             Dim sqlString As String = String.Empty
-            sqlString = "delete from [hs_amb_Profile]"
+            sqlString = "delete from [hs_Cron_Profile]"
             sqlString += " where CronId=@CronId"
 
             Dim sqlCmd As SqlCommand = New SqlCommand()
@@ -10187,7 +10259,7 @@ Namespace SCP.DAL
                     sqlCmd.ExecuteScalar()
                     cn.Close()
                 Catch ex As Exception
-                    scriviLog("hs_amb_Profile_Clear " & ex.Message)
+                    scriviLog("hs_Cron_Profile_Clear " & ex.Message)
                     Return retVal
                 End Try
                 retVal = True
@@ -10195,21 +10267,21 @@ Namespace SCP.DAL
             Return retVal
         End Function
 
-        Public Overrides Function hs_amb_Profile_List(CronId As Integer, ProfileY As Integer) As List(Of hs_amb_Profile)
+        Public Overrides Function hs_Cron_Profile_List(CronId As Integer, ProfileY As Integer) As List(Of hs_Cron_Profile)
             Dim sqlString As String = String.Empty
-            sqlString = "SELECT hs_amb_Profile.*"
-            sqlString += "  , hs_amb_Profile_Descr.descr as realdescr"
-            sqlString += " FROM hs_amb_Profile"
-            sqlString += " LEFT OUTER JOIN hs_amb_Profile_Descr ON hs_amb_Profile.CronId = hs_amb_Profile_Descr.CronId AND hs_amb_Profile.ProfileNr = hs_amb_Profile_Descr.ProfileNr"
-            sqlString += " where hs_amb_Profile.CronId=@CronId"
-            sqlString += "   and hs_amb_Profile.ProfileY=@ProfileY"
+            sqlString = "SELECT hs_Cron_Profile.*"
+            sqlString += "  , hs_Cron_Profile_Descr.descr as realdescr"
+            sqlString += " FROM hs_Cron_Profile"
+            sqlString += " LEFT OUTER JOIN hs_Cron_Profile_Descr ON hs_cron_Profile.CronId = hs_Cron_Profile_Descr.CronId AND hs_cron_Profile.ProfileNr = hs_Cron_Profile_Descr.ProfileNr"
+            sqlString += " where hs_Cron_Profile.CronId=@CronId"
+            sqlString += "   and hs_Cron_Profile.ProfileY=@ProfileY"
 
             Dim sqlCmd As SqlCommand = New SqlCommand()
             sqlCmd.CommandText = sqlString
             AddParamToSQLCmd(sqlCmd, "@CronId", SqlDbType.Int, 0, ParameterDirection.Input, CronId)
             AddParamToSQLCmd(sqlCmd, "@ProfileY", SqlDbType.Int, 0, ParameterDirection.Input, ProfileY)
 
-            Dim _List As New List(Of hs_amb_Profile)()
+            Dim _List As New List(Of hs_Cron_Profile)()
 
             Dim Connection As New SqlConnection(DataAccess.SCP)
             Connection.Open()
@@ -10219,10 +10291,10 @@ Namespace SCP.DAL
             Dim reader As SqlDataReader = sqlCmd.ExecuteReader()
             Try
                 Do While reader.Read
-                    _List.Add(preparerecordhs_amb_Profile(reader))
+                    _List.Add(preparerecordhs_Cron_Profile(reader))
                 Loop
             Catch ex As Exception
-                scriviLog("hs_amb_Profile_List " & ex.Message)
+                scriviLog("hs_Cron_Profile_List " & ex.Message)
             End Try
             If (Not reader Is Nothing) Then
                 reader.Close()
@@ -10238,15 +10310,15 @@ Namespace SCP.DAL
             End If
         End Function
 
-        Public Overrides Function hs_amb_Profile_Read(CronId As Integer, ProfileY As Integer, ProfileNr As Integer) As hs_amb_Profile
+        Public Overrides Function hs_Cron_Profile_Read(CronId As Integer, ProfileY As Integer, ProfileNr As Integer) As hs_Cron_Profile
             Dim sqlString As String = String.Empty
-            sqlString = "SELECT hs_amb_Profile.*"
-            sqlString += "  , hs_amb_Profile_Descr.descr as realdescr"
-            sqlString += " FROM hs_amb_Profile"
-            sqlString += " LEFT OUTER JOIN hs_amb_Profile_Descr ON hs_amb_Profile.CronId = hs_amb_Profile_Descr.CronId AND hs_amb_Profile.ProfileNr = hs_amb_Profile_Descr.ProfileNr"
-            sqlString += " where hs_amb_Profile.CronId=@CronId"
-            sqlString += "   and hs_amb_Profile.ProfileY=@ProfileY"
-            sqlString += "   and hs_amb_Profile.ProfileNr=@ProfileNr"
+            sqlString = "SELECT hs_Cron_Profile.*"
+            sqlString += "  , hs_Cron_Profile_Descr.descr as realdescr"
+            sqlString += " FROM hs_Cron_Profile"
+            sqlString += " LEFT OUTER JOIN hs_Cron_Profile_Descr ON hs_cron_Profile.CronId = hs_Cron_Profile_Descr.CronId AND hs_cron_Profile.ProfileNr = hs_Cron_Profile_Descr.ProfileNr"
+            sqlString += " where hs_Cron_Profile.CronId=@CronId"
+            sqlString += "   and hs_Cron_Profile.ProfileY=@ProfileY"
+            sqlString += "   and hs_Cron_Profile.ProfileNr=@ProfileNr"
 
             Dim sqlCmd As SqlCommand = New SqlCommand()
             sqlCmd.CommandText = sqlString
@@ -10254,7 +10326,7 @@ Namespace SCP.DAL
             AddParamToSQLCmd(sqlCmd, "@ProfileY", SqlDbType.Int, 0, ParameterDirection.Input, ProfileY)
             AddParamToSQLCmd(sqlCmd, "@ProfileNr", SqlDbType.Int, 0, ParameterDirection.Input, ProfileNr)
 
-            Dim _List As New List(Of hs_amb_Profile)()
+            Dim _List As New List(Of hs_Cron_Profile)()
 
             Dim Connection As New SqlConnection(DataAccess.SCP)
             Connection.Open()
@@ -10263,10 +10335,10 @@ Namespace SCP.DAL
             Dim reader As SqlDataReader = sqlCmd.ExecuteReader()
             Try
                 If reader.Read Then
-                    _List.Add(preparerecordhs_amb_Profile(reader))
+                    _List.Add(preparerecordhs_Cron_Profile(reader))
                 End If
             Catch ex As Exception
-                scriviLog("hs_amb_Profile_Read " & ex.Message)
+                scriviLog("hs_Cron_Profile_Read " & ex.Message)
             End Try
             If (Not reader Is Nothing) Then
                 reader.Close()
@@ -10282,10 +10354,10 @@ Namespace SCP.DAL
             End If
         End Function
 
-        Public Overrides Function hs_amb_Profile_Update(CronId As Integer, ProfileY As Integer, ProfileNr As Integer, descr As String, ProfileData() As Decimal) As Boolean
+        Public Overrides Function hs_Cron_Profile_Update(CronId As Integer, ProfileY As Integer, ProfileNr As Integer, descr As String, ProfileData() As Decimal) As Boolean
             Dim retVal As Boolean = False
             Dim sqlString As String = String.Empty
-            sqlString = "update [hs_amb_Profile]"
+            sqlString = "update [hs_Cron_Profile]"
             sqlString += " set ProfileData=@ProfileData"
             sqlString += " , descr=@descr"
             sqlString += " , LastUpdate=LastUpdate+1"
@@ -10313,7 +10385,7 @@ Namespace SCP.DAL
                     sqlCmd.ExecuteScalar()
                     cn.Close()
                 Catch ex As Exception
-                    scriviLog("hs_amb_Profile_Update " & ex.Message)
+                    scriviLog("hs_Cron_Profile_Update " & ex.Message)
                     Return retVal
                 End Try
                 retVal = True
@@ -10321,8 +10393,8 @@ Namespace SCP.DAL
             Return retVal
         End Function
 #End Region
-#Region "hs_amb_Profile_Descr"
-        Private Function preparerecordhs_amb_Profile_Descr(reader As SqlDataReader) As hs_amb_Profile_Descr
+#Region "hs_Cron_Profile_Descr"
+        Private Function preparerecordhs_Cron_Profile_Descr(reader As SqlDataReader) As hs_Cron_Profile_Descr
             Dim CronId As Integer = 0
             If Not IsDBNull(reader("CronId")) Then
                 CronId = CInt(reader("CronId").ToString)
@@ -10338,14 +10410,14 @@ Namespace SCP.DAL
                 descr = CStr(reader("descr"))
             End If
 
-            Dim _obj As hs_amb_Profile_Descr = New hs_amb_Profile_Descr(CronId, ProfileNr, descr)
+            Dim _obj As hs_Cron_Profile_Descr = New hs_Cron_Profile_Descr(CronId, ProfileNr, descr)
             Return _obj
         End Function
 
-        Public Overrides Function hs_amb_Profile_Descr_Add(CronId As Integer, ProfileNr As Integer, descr As String) As Boolean
+        Public Overrides Function hs_Cron_Profile_Descr_Add(CronId As Integer, ProfileNr As Integer, descr As String) As Boolean
             Dim retVal As Integer = 0
             Dim sqlString As String = String.Empty
-            sqlString = "INSERT INTO [hs_amb_Profile_Descr]"
+            sqlString = "INSERT INTO [hs_Cron_Profile_Descr]"
             sqlString += "           ([CronId]"
             sqlString += "           ,[ProfileNr]"
             sqlString += "           ,[descr]"
@@ -10369,7 +10441,7 @@ Namespace SCP.DAL
                     sqlCmd.ExecuteScalar()
                     cn.Close()
                 Catch ex As Exception
-                    scriviLog("hs_amb_Profile_Descr_Add " & ex.Message)
+                    scriviLog("hs_Cron_Profile_Descr_Add " & ex.Message)
                     Return retVal
                 End Try
                 retVal = True
@@ -10377,10 +10449,10 @@ Namespace SCP.DAL
             Return retVal
         End Function
 
-        Public Overrides Function hs_amb_Profile_Descr_Del(CronId As Integer, ProfileNr As Integer) As Boolean
+        Public Overrides Function hs_Cron_Profile_Descr_Del(CronId As Integer, ProfileNr As Integer) As Boolean
             Dim retVal As Boolean = False
             Dim sqlString As String = String.Empty
-            sqlString = "delete from [hs_amb_Profile_Descr]"
+            sqlString = "delete from [hs_Cron_Profile_Descr]"
             sqlString += " where CronId=@CronId"
             sqlString += "   and ProfileNr=@ProfileNr"
 
@@ -10397,7 +10469,7 @@ Namespace SCP.DAL
                     sqlCmd.ExecuteScalar()
                     cn.Close()
                 Catch ex As Exception
-                    scriviLog("hs_amb_Profile_Descr_Del " & ex.Message)
+                    scriviLog("hs_Cron_Profile_Descr_Del " & ex.Message)
                     Return retVal
                 End Try
                 retVal = True
@@ -10405,17 +10477,17 @@ Namespace SCP.DAL
             Return retVal
         End Function
 
-        Public Overrides Function hs_amb_Profile_Descr_List(CronId As Integer) As List(Of hs_amb_Profile_Descr)
+        Public Overrides Function hs_Cron_Profile_Descr_List(CronId As Integer) As List(Of hs_Cron_Profile_Descr)
             Dim sqlString As String = String.Empty
             sqlString = "SELECT *"
-            sqlString += " FROM hs_amb_Profile_Descr"
+            sqlString += " FROM hs_Cron_Profile_Descr"
             sqlString += " where CronId=@CronId"
 
             Dim sqlCmd As SqlCommand = New SqlCommand()
             sqlCmd.CommandText = sqlString
             AddParamToSQLCmd(sqlCmd, "@CronId", SqlDbType.Int, 0, ParameterDirection.Input, CronId)
 
-            Dim _List As New List(Of hs_amb_Profile_Descr)()
+            Dim _List As New List(Of hs_Cron_Profile_Descr)()
 
             Dim Connection As New SqlConnection(DataAccess.SCP)
             Connection.Open()
@@ -10425,10 +10497,10 @@ Namespace SCP.DAL
             Dim reader As SqlDataReader = sqlCmd.ExecuteReader()
             Try
                 Do While reader.Read
-                    _List.Add(preparerecordhs_amb_Profile_Descr(reader))
+                    _List.Add(preparerecordhs_Cron_Profile_Descr(reader))
                 Loop
             Catch ex As Exception
-                scriviLog("hs_amb_Profile_Descr_List " & ex.Message)
+                scriviLog("hs_Cron_Profile_Descr_List " & ex.Message)
             End Try
             If (Not reader Is Nothing) Then
                 reader.Close()
@@ -10444,10 +10516,10 @@ Namespace SCP.DAL
             End If
         End Function
 
-        Public Overrides Function hs_amb_Profile_Descr_Read(CronId As Integer, ProfileNr As Integer) As hs_amb_Profile_Descr
+        Public Overrides Function hs_Cron_Profile_Descr_Read(CronId As Integer, ProfileNr As Integer) As hs_Cron_Profile_Descr
             Dim sqlString As String = String.Empty
             sqlString = "SELECT *"
-            sqlString += " FROM hs_amb_Profile_Descr"
+            sqlString += " FROM hs_Cron_Profile_Descr"
             sqlString += " where CronId=@CronId"
             sqlString += "   and ProfileNr=@ProfileNr"
 
@@ -10456,7 +10528,7 @@ Namespace SCP.DAL
             AddParamToSQLCmd(sqlCmd, "@CronId", SqlDbType.Int, 0, ParameterDirection.Input, CronId)
             AddParamToSQLCmd(sqlCmd, "@ProfileNr", SqlDbType.Int, 0, ParameterDirection.Input, ProfileNr)
 
-            Dim _List As New List(Of hs_amb_Profile_Descr)()
+            Dim _List As New List(Of hs_Cron_Profile_Descr)()
 
             Dim Connection As New SqlConnection(DataAccess.SCP)
             Connection.Open()
@@ -10465,10 +10537,10 @@ Namespace SCP.DAL
             Dim reader As SqlDataReader = sqlCmd.ExecuteReader()
             Try
                 If reader.Read Then
-                    _List.Add(preparerecordhs_amb_Profile_Descr(reader))
+                    _List.Add(preparerecordhs_Cron_Profile_Descr(reader))
                 End If
             Catch ex As Exception
-                scriviLog("hs_amb_Profile_Descr_Read " & ex.Message)
+                scriviLog("hs_Cron_Profile_Descr_Read " & ex.Message)
             End Try
             If (Not reader Is Nothing) Then
                 reader.Close()
@@ -10484,10 +10556,10 @@ Namespace SCP.DAL
             End If
         End Function
 
-        Public Overrides Function hs_amb_Profile_Descr_Update(CronId As Integer, ProfileNr As Integer, descr As String) As Boolean
+        Public Overrides Function hs_Cron_Profile_Descr_Update(CronId As Integer, ProfileNr As Integer, descr As String) As Boolean
             Dim retVal As Boolean = False
             Dim sqlString As String = String.Empty
-            sqlString = "update [hs_amb_Profile_Descr]"
+            sqlString = "update [hs_Cron_Profile_Descr]"
             sqlString += " set descr=@descr"
             sqlString += " where CronId=@CronId"
             sqlString += "   and ProfileNr=@ProfileNr"
@@ -10505,7 +10577,7 @@ Namespace SCP.DAL
                     sqlCmd.ExecuteScalar()
                     cn.Close()
                 Catch ex As Exception
-                    scriviLog("hs_amb_Profile_Descr_Update " & ex.Message)
+                    scriviLog("hs_Cron_Profile_Descr_Update " & ex.Message)
                     Return retVal
                 End Try
                 retVal = True
@@ -10513,8 +10585,8 @@ Namespace SCP.DAL
             Return retVal
         End Function
 #End Region
-#Region "hs_amb_Profile_Tasks"
-        Private Function prepareRecord_hs_amb_Profile_Tasks(reader As SqlDataReader) As hs_amb_Profile_Tasks
+#Region "hs_Cron_Profile_Tasks"
+        Private Function prepareRecord_hs_Cron_Profile_Tasks(reader As SqlDataReader) As hs_Cron_Profile_Tasks
             Dim CronId As Integer = 0
             If Not IsDBNull(reader("CronId")) Then
                 CronId = CInt(reader("CronId").ToString)
@@ -10574,11 +10646,16 @@ Namespace SCP.DAL
                 CronDescr = CStr(reader("CronDescr").ToString)
             End If
 
-            Dim _obj As hs_amb_Profile_Tasks = New hs_amb_Profile_Tasks(TaskId, CronId, ProfileNr, Subject, StartDate, EndDate, RecurrencePattern, ExceptionAppointments, yearsRepeatable, CronCod, CronDescr)
+            Dim IdAmbiente As Integer = 0
+            If Not IsDBNull(reader("IdAmbiente")) Then
+                IdAmbiente = CInt(reader("IdAmbiente").ToString)
+            End If
+
+            Dim _obj As hs_Cron_Profile_Tasks = New hs_Cron_Profile_Tasks(TaskId, CronId, ProfileNr, Subject, StartDate, EndDate, RecurrencePattern, ExceptionAppointments, yearsRepeatable, CronCod, CronDescr, IdAmbiente)
             Return _obj
         End Function
 
-        Public Overrides Function hs_amb_Profile_Tasks_Add(CronId As Integer,
+        Public Overrides Function hs_Cron_Profile_Tasks_Add(CronId As Integer,
                                                             ProfileNr As Integer,
                                                             Subject As String,
                                                             StartDate As Date,
@@ -10588,7 +10665,7 @@ Namespace SCP.DAL
                                                             yearsRepeatable As Boolean) As Boolean
             Dim retVal As Integer = 0
             Dim sqlString As String = String.Empty
-            sqlString = "INSERT INTO [hs_amb_Profile_Tasks]"
+            sqlString = "INSERT INTO [hs_Cron_Profile_Tasks]"
             sqlString += "           ([CronId]"
             sqlString += "           ,[ProfileNr]"
             sqlString += "           ,[Subject]"
@@ -10629,7 +10706,7 @@ Namespace SCP.DAL
                     sqlCmd.ExecuteScalar()
                     cn.Close()
                 Catch ex As Exception
-                    scriviLog("hs_amb_Profile_Tasks_Add " & ex.Message)
+                    scriviLog("hs_Cron_Profile_Tasks_Add " & ex.Message)
                     Return retVal
                 End Try
                 retVal = True
@@ -10637,17 +10714,16 @@ Namespace SCP.DAL
             Return retVal
         End Function
 
-        Public Overrides Function hs_amb_Profile_Tasks_Del(CronId As Integer, ProfileNr As Integer) As Boolean
+        Public Overrides Function hs_Cron_Profile_Tasks_Del(TaskId As Integer) As Boolean
             Dim retVal As Boolean = False
             Dim sqlString As String = String.Empty
-            sqlString = "delete from [hs_amb_Profile_Tasks]"
-            sqlString += " where CronId=@CronId"
-            sqlString += "   and ProfileNr=@ProfileNr"
+            sqlString = "delete from [hs_Cron_Profile_Tasks]"
+            sqlString += " where TaskId=@TaskId"
 
             Dim sqlCmd As SqlCommand = New SqlCommand()
             sqlCmd.CommandText = sqlString
-            AddParamToSQLCmd(sqlCmd, "@CronId", SqlDbType.Int, 0, ParameterDirection.Input, CronId)
-            AddParamToSQLCmd(sqlCmd, "@ProfileNr", SqlDbType.Int, 0, ParameterDirection.Input, ProfileNr)
+            AddParamToSQLCmd(sqlCmd, "@TaskId", SqlDbType.Int, 0, ParameterDirection.Input, TaskId)
+
 
             Using cn As SqlConnection = New SqlConnection(DataAccess.SCP)
                 Try
@@ -10656,7 +10732,7 @@ Namespace SCP.DAL
                     sqlCmd.ExecuteScalar()
                     cn.Close()
                 Catch ex As Exception
-                    scriviLog("hs_amb_Profile_Tasks_Del " & ex.Message)
+                    scriviLog("hs_Cron_Profile_Tasks_Del " & ex.Message)
                     Return retVal
                 End Try
                 retVal = True
@@ -10664,18 +10740,18 @@ Namespace SCP.DAL
             Return retVal
         End Function
 
-        Public Overrides Function hs_amb_Profile_Tasks_List(CronId As Integer) As List(Of hs_amb_Profile_Tasks)
+        Public Overrides Function hs_Cron_Profile_Tasks_List(CronId As Integer) As List(Of hs_Cron_Profile_Tasks)
             Dim sqlString As String = String.Empty
-            sqlString = "SELECT hs_amb_Profile_Tasks.*, hs_Cron.CronCod, hs_Cron.CronDescr"
-            sqlString += " FROM hs_amb_Profile_Tasks "
-            sqlString += " INNER JOIN hs_Cron ON hs_amb_Profile_Tasks.CronId = hs_Cron.CronId"
-            sqlString += " where hs_amb_Profile_Tasks.CronId=@CronId"
+            sqlString = "SELECT hs_Cron_Profile_Tasks.*, hs_Cron.CronCod, hs_Cron.CronDescr"
+            sqlString += " FROM hs_Cron_Profile_Tasks "
+            sqlString += " INNER JOIN hs_Cron ON hs_Cron_Profile_Tasks.CronId = hs_Cron.CronId"
+            sqlString += " where hs_Cron_Profile_Tasks.CronId=@CronId"
 
             Dim sqlCmd As SqlCommand = New SqlCommand()
             sqlCmd.CommandText = sqlString
             AddParamToSQLCmd(sqlCmd, "@CronId", SqlDbType.Int, 0, ParameterDirection.Input, CronId)
 
-            Dim _List As New List(Of hs_amb_Profile_Tasks)()
+            Dim _List As New List(Of hs_Cron_Profile_Tasks)()
 
             Dim Connection As New SqlConnection(DataAccess.SCP)
             Connection.Open()
@@ -10685,10 +10761,10 @@ Namespace SCP.DAL
             Dim reader As SqlDataReader = sqlCmd.ExecuteReader()
             Try
                 Do While reader.Read
-                    _List.Add(prepareRecord_hs_amb_Profile_Tasks(reader))
+                    _List.Add(prepareRecord_hs_Cron_Profile_Tasks(reader))
                 Loop
             Catch ex As Exception
-                scriviLog("hs_amb_Profile_Tasks_List " & ex.Message)
+                scriviLog("hs_Cron_Profile_Tasks_List " & ex.Message)
             End Try
             If (Not reader Is Nothing) Then
                 reader.Close()
@@ -10704,16 +10780,16 @@ Namespace SCP.DAL
             End If
         End Function
 
-        Public Overrides Function hs_amb_Profile_Tasks_ListAll() As List(Of hs_amb_Profile_Tasks)
+        Public Overrides Function hs_Cron_Profile_Tasks_ListAll() As List(Of hs_Cron_Profile_Tasks)
             Dim sqlString As String = String.Empty
-            sqlString = "SELECT hs_amb_Profile_Tasks.*, hs_Cron.CronCod, hs_Cron.CronDescr"
-            sqlString += " FROM hs_amb_Profile_Tasks "
-            sqlString += " INNER JOIN hs_Cron ON hs_amb_Profile_Tasks.CronId = hs_Cron.CronId"
+            sqlString = "SELECT hs_Cron_Profile_Tasks.*, hs_Cron.CronCod, hs_Cron.CronDescr"
+            sqlString += " FROM hs_Cron_Profile_Tasks "
+            sqlString += " INNER JOIN hs_Cron ON hs_Cron_Profile_Tasks.CronId = hs_Cron.CronId"
 
             Dim sqlCmd As SqlCommand = New SqlCommand()
             sqlCmd.CommandText = sqlString
 
-            Dim _List As New List(Of hs_amb_Profile_Tasks)()
+            Dim _List As New List(Of hs_Cron_Profile_Tasks)()
 
             Dim Connection As New SqlConnection(DataAccess.SCP)
             Connection.Open()
@@ -10723,10 +10799,10 @@ Namespace SCP.DAL
             Dim reader As SqlDataReader = sqlCmd.ExecuteReader()
             Try
                 Do While reader.Read
-                    _List.Add(prepareRecord_hs_amb_Profile_Tasks(reader))
+                    _List.Add(prepareRecord_hs_Cron_Profile_Tasks(reader))
                 Loop
             Catch ex As Exception
-                scriviLog("hs_amb_Profile_Tasks_ListAll " & ex.Message)
+                scriviLog("hs_Cron_Profile_Tasks_ListAll " & ex.Message)
             End Try
             If (Not reader Is Nothing) Then
                 reader.Close()
@@ -10742,18 +10818,18 @@ Namespace SCP.DAL
             End If
         End Function
 
-        Public Overrides Function hs_amb_Profile_Tasks_Read(TaskId As Integer) As hs_amb_Profile_Tasks
+        Public Overrides Function hs_Cron_Profile_Tasks_Read(TaskId As Integer) As hs_Cron_Profile_Tasks
             Dim sqlString As String = String.Empty
-            sqlString = "SELECT hs_amb_Profile_Tasks.*, hs_Cron.CronCod, hs_Cron.CronDescr"
-            sqlString += " FROM hs_amb_Profile_Tasks "
-            sqlString += " INNER JOIN hs_Cron ON hs_amb_Profile_Tasks.CronId = hs_Cron.CronId"
-            sqlString += " where hs_amb_Profile_Tasks.TaskId=@TaskId"
+            sqlString = "SELECT hs_Cron_Profile_Tasks.*, hs_Cron.CronCod, hs_Cron.CronDescr"
+            sqlString += " FROM hs_Cron_Profile_Tasks "
+            sqlString += " INNER JOIN hs_Cron ON hs_Cron_Profile_Tasks.CronId = hs_Cron.CronId"
+            sqlString += " where hs_Cron_Profile_Tasks.TaskId=@TaskId"
 
             Dim sqlCmd As SqlCommand = New SqlCommand()
             sqlCmd.CommandText = sqlString
             AddParamToSQLCmd(sqlCmd, "@TaskId", SqlDbType.Int, 0, ParameterDirection.Input, TaskId)
 
-            Dim _List As New List(Of hs_amb_Profile_Tasks)()
+            Dim _List As New List(Of hs_Cron_Profile_Tasks)()
 
             Dim Connection As New SqlConnection(DataAccess.SCP)
             Connection.Open()
@@ -10762,10 +10838,10 @@ Namespace SCP.DAL
             Dim reader As SqlDataReader = sqlCmd.ExecuteReader()
             Try
                 If reader.Read Then
-                    _List.Add(prepareRecord_hs_amb_Profile_Tasks(reader))
+                    _List.Add(prepareRecord_hs_Cron_Profile_Tasks(reader))
                 End If
             Catch ex As Exception
-                scriviLog("hs_amb_Profile_Tasks_Read " & ex.Message)
+                scriviLog("hs_Cron_Profile_Tasks_Read " & ex.Message)
             End Try
             If (Not reader Is Nothing) Then
                 reader.Close()
@@ -10781,7 +10857,7 @@ Namespace SCP.DAL
             End If
         End Function
 
-        Public Overrides Function hs_amb_Profile_Tasks_Update(TaskId As Integer,
+        Public Overrides Function hs_Cron_Profile_Tasks_Update(TaskId As Integer,
                                                                ProfileNr As Integer,
                                                                Subject As String,
                                                                StartDate As Date,
@@ -10791,7 +10867,7 @@ Namespace SCP.DAL
                                                                yearsRepeatable As Boolean) As Boolean
             Dim retVal As Boolean = False
             Dim sqlString As String = String.Empty
-            sqlString = "update [hs_amb_Profile_Tasks]"
+            sqlString = "update [hs_Cron_Profile_Tasks]"
             sqlString += " set Subject=@Subject"
             sqlString += "   , ProfileNr=@ProfileNr"
             sqlString += "   ,StartDate=@StartDate"
@@ -10820,16 +10896,67 @@ Namespace SCP.DAL
                     sqlCmd.ExecuteScalar()
                     cn.Close()
                 Catch ex As Exception
-                    scriviLog("hs_amb_Profile_Tasks_Update " & ex.Message)
+                    scriviLog("hs_Cron_Profile_Tasks_Update " & ex.Message)
                     Return retVal
                 End Try
                 retVal = True
             End Using
             Return retVal
         End Function
+
+        Public Overrides Function hs_Cron_Profile_Tasks_Update_Repeat(IdAmbiente As Integer,
+                                                               CronId As Integer,
+                                                               ProfileNr As Integer,
+                                                               Subject As String,
+                                                               StartDate As Date,
+                                                               EndDate As Date,
+                                                               RecurrencePattern As String,
+                                                               ExceptionAppointments As String,
+                                                               yearsRepeatable As Boolean) As Boolean
+            Dim retVal As Boolean = False
+            Dim sqlString As String = String.Empty
+            sqlString = "update [hs_Cron_Profile_Tasks]"
+            sqlString += " set Subject=@Subject"
+            sqlString += "   , ProfileNr=@ProfileNr"
+            sqlString += "   ,StartDate=@StartDate"
+            sqlString += "   ,EndDate=@EndDate"
+            sqlString += "   ,RecurrencePattern=@RecurrencePattern"
+            sqlString += "   ,ExceptionAppointments=@ExceptionAppointments"
+            sqlString += "   ,yearsRepeatable=@yearsRepeatable"
+            sqlString += " where IdAmbiente=@IdAmbiente and CronId=@CronId"
+
+            Dim sqlCmd As SqlCommand = New SqlCommand()
+            sqlCmd.CommandText = sqlString
+
+
+            AddParamToSQLCmd(sqlCmd, "@IdAmbiente", SqlDbType.Int, 0, ParameterDirection.Input, IdAmbiente)
+            AddParamToSQLCmd(sqlCmd, "@CronId", SqlDbType.Int, 0, ParameterDirection.Input, CronId)
+            AddParamToSQLCmd(sqlCmd, "@ProfileNr", SqlDbType.Int, 0, ParameterDirection.Input, ProfileNr)
+            AddParamToSQLCmd(sqlCmd, "@Subject", SqlDbType.NVarChar, 100, ParameterDirection.Input, UCase(Subject))
+            AddParamToSQLCmd(sqlCmd, "@StartDate", SqlDbType.SmallDateTime, 0, ParameterDirection.Input, StartDate)
+            AddParamToSQLCmd(sqlCmd, "@EndDate", SqlDbType.SmallDateTime, 0, ParameterDirection.Input, EndDate)
+            AddParamToSQLCmd(sqlCmd, "@RecurrencePattern", SqlDbType.NVarChar, 255, ParameterDirection.Input, RecurrencePattern)
+            AddParamToSQLCmd(sqlCmd, "@ExceptionAppointments", SqlDbType.Text, 0, ParameterDirection.Input, ExceptionAppointments)
+            AddParamToSQLCmd(sqlCmd, "@yearsRepeatable", SqlDbType.Bit, 0, ParameterDirection.Input, yearsRepeatable)
+
+            Using cn As SqlConnection = New SqlConnection(DataAccess.SCP)
+                Try
+                    sqlCmd.Connection = cn
+                    cn.Open()
+                    sqlCmd.ExecuteScalar()
+                    cn.Close()
+                Catch ex As Exception
+                    scriviLog("hs_Cron_Profile_Tasks_Update_Repeat " & ex.Message)
+                    Return retVal
+                End Try
+                retVal = True
+            End Using
+            Return retVal
+        End Function
+
 #End Region
-#Region "hs_amb_Calendar"
-        Private Function preparerecord_hs_amb_Calendar(reader As SqlDataReader) As hs_amb_Calendar
+#Region "hs_Cron_Calendar"
+        Private Function preparerecord_hs_Cron_Calendar(reader As SqlDataReader) As hs_Cron_Calendar
             Dim CronId As Integer = 0
             If Not IsDBNull(reader("CronId")) Then
                 CronId = CInt(reader("CronId").ToString)
@@ -10879,14 +11006,16 @@ Namespace SCP.DAL
                 End If
             End If
 
-            Dim _obj As hs_amb_Calendar = New hs_amb_Calendar(CronId, Calyear, Calmonth, RealMonthData, DesiredMonthData, TasksForDesired, LastSend)
+
+
+            Dim _obj As hs_Cron_Calendar = New hs_Cron_Calendar(CronId, Calyear, Calmonth, RealMonthData, DesiredMonthData, TasksForDesired, LastSend)
             Return _obj
         End Function
 
-        Public Overrides Function hs_amb_Calendar_Add(CronId As Integer, Calyear As Integer, Calmonth As Integer, monthData() As Integer) As Boolean
+        Public Overrides Function hs_Cron_Calendar_Add(CronId As Integer, Calyear As Integer, Calmonth As Integer, monthData() As Integer) As Boolean
             Dim retVal As Integer = 0
             Dim sqlString As String = String.Empty
-            sqlString = "INSERT INTO [hs_amb_Calendar]"
+            sqlString = "INSERT INTO [hs_Cron_Calendar]"
             sqlString += "           ([CronId]"
             sqlString += "           ,[Calyear]"
             sqlString += "           ,[Calmonth]"
@@ -10913,10 +11042,10 @@ Namespace SCP.DAL
             Next
 
             Dim TasksForDesired As String = String.Empty
-            Dim profile_task_list As List(Of hs_amb_Profile_Tasks) = hs_amb_Profile_Tasks.ListByMonth(CronId, Calyear, Calmonth)
+            Dim profile_task_list As List(Of hs_Cron_Profile_Tasks) = hs_Cron_Profile_Tasks.ListByMonth(CronId, Calyear, Calmonth)
             If Not profile_task_list Is Nothing Then
                 Dim x As Integer = 0
-                For Each _task As hs_amb_Profile_Tasks In profile_task_list
+                For Each _task As hs_Cron_Profile_Tasks In profile_task_list
                     TasksForDesired += _task.ProfileNr & ";"
                     x = x + 1
                     If x > 31 Then Exit For
@@ -10938,7 +11067,7 @@ Namespace SCP.DAL
                     sqlCmd.ExecuteScalar()
                     cn.Close()
                 Catch ex As Exception
-                    scriviLog("hs_amb_Calendar_Add " & ex.Message)
+                    scriviLog("hs_Cron_Calendar_Add " & ex.Message)
                     Return retVal
                 End Try
                 retVal = True
@@ -10946,10 +11075,10 @@ Namespace SCP.DAL
             Return retVal
         End Function
 
-        Public Overrides Function hs_amb_Calendar_Clear(CronId As Object) As Boolean
+        Public Overrides Function hs_Cron_Calendar_Clear(CronId As Object) As Boolean
             Dim retVal As Boolean = False
             Dim sqlString As String = String.Empty
-            sqlString = "delete from [hs_amb_Calendar]"
+            sqlString = "delete from [hs_Cron_Calendar]"
             sqlString += " where CronId=@CronId"
 
             Dim sqlCmd As SqlCommand = New SqlCommand()
@@ -10964,7 +11093,7 @@ Namespace SCP.DAL
                     sqlCmd.ExecuteScalar()
                     cn.Close()
                 Catch ex As Exception
-                    scriviLog("hs_amb_Calendar_Clear " & ex.Message)
+                    scriviLog("hs_Cron_Calendar_Clear " & ex.Message)
                     Return retVal
                 End Try
                 retVal = True
@@ -10972,10 +11101,10 @@ Namespace SCP.DAL
             Return retVal
         End Function
 
-        Public Overrides Function hs_amb_Calendar_Read(CronId As Integer, Calyear As Integer, Calmonth As Integer) As hs_amb_Calendar
+        Public Overrides Function hs_Cron_Calendar_Read(CronId As Integer, Calyear As Integer, Calmonth As Integer) As hs_Cron_Calendar
             Dim sqlString As String = String.Empty
             sqlString = "SELECT *"
-            sqlString += " FROM hs_amb_Calendar"
+            sqlString += " FROM hs_Cron_Calendar"
             sqlString += " where CronId=@CronId"
             sqlString += "   and Calyear=@Calyear"
             sqlString += "   and Calmonth=@Calmonth"
@@ -10986,7 +11115,7 @@ Namespace SCP.DAL
             AddParamToSQLCmd(sqlCmd, "@Calyear", SqlDbType.Int, 0, ParameterDirection.Input, Calyear)
             AddParamToSQLCmd(sqlCmd, "@Calmonth", SqlDbType.Int, 0, ParameterDirection.Input, Calmonth)
 
-            Dim _List As New List(Of hs_amb_Calendar)()
+            Dim _List As New List(Of hs_Cron_Calendar)()
 
             Dim Connection As New SqlConnection(DataAccess.SCP)
             Connection.Open()
@@ -10995,10 +11124,10 @@ Namespace SCP.DAL
             Dim reader As SqlDataReader = sqlCmd.ExecuteReader()
             Try
                 If reader.Read Then
-                    _List.Add(preparerecord_hs_amb_Calendar(reader))
+                    _List.Add(preparerecord_hs_Cron_Calendar(reader))
                 End If
             Catch ex As Exception
-                scriviLog("hs_amb_Calendar_Read " & ex.Message)
+                scriviLog("hs_Cron_Calendar_Read " & ex.Message)
             End Try
             If (Not reader Is Nothing) Then
                 reader.Close()
@@ -11014,10 +11143,42 @@ Namespace SCP.DAL
             End If
         End Function
 
-        Public Overrides Function hs_amb_Calendar_Update(CronId As Integer, Calyear As Integer, Calmonth As Integer, TasksForDesired As Integer(), DesiredMonthData As Integer()) As Boolean
+        Public Overrides Function hs_Cron_Calendar_replaceDesiredWithTask(CronId As Integer, Calyear As Integer, Calmonth As Integer) As Boolean
             Dim retVal As Boolean = False
             Dim sqlString As String = String.Empty
-            sqlString = "update [hs_amb_Calendar]"
+            sqlString = "update [hs_Cron_Calendar]"
+            sqlString += " set DesiredMonthData=TasksForDesired"
+            sqlString += " , LastUpdate=LastUpdate+1"
+            sqlString += " , dtUpdate=getdate()"
+            sqlString += " where CronId=@CronId"
+            sqlString += "   and Calyear=@Calyear"
+            sqlString += "   and Calmonth=@Calmonth"
+
+            Dim sqlCmd As SqlCommand = New SqlCommand()
+            sqlCmd.CommandText = sqlString
+            AddParamToSQLCmd(sqlCmd, "@CronId", SqlDbType.Int, 0, ParameterDirection.Input, CronId)
+            AddParamToSQLCmd(sqlCmd, "@Calyear", SqlDbType.Int, 0, ParameterDirection.Input, Calyear)
+            AddParamToSQLCmd(sqlCmd, "@Calmonth", SqlDbType.Int, 0, ParameterDirection.Input, Calmonth)
+
+            Using cn As SqlConnection = New SqlConnection(DataAccess.SCP)
+                Try
+                    sqlCmd.Connection = cn
+                    cn.Open()
+                    sqlCmd.ExecuteScalar()
+                    cn.Close()
+                Catch ex As Exception
+                    scriviLog("hs_Cron_Calendar_replaceDesiredWithTask " & ex.Message)
+                    Return retVal
+                End Try
+                retVal = True
+            End Using
+            Return retVal
+        End Function
+
+        Public Overrides Function hs_Cron_Calendar_Update(CronId As Integer, Calyear As Integer, Calmonth As Integer, TasksForDesired As Integer(), DesiredMonthData As Integer()) As Boolean
+            Dim retVal As Boolean = False
+            Dim sqlString As String = String.Empty
+            sqlString = "update [hs_Cron_Calendar]"
             sqlString += " set DesiredMonthData=@DesiredMonthData"
             sqlString += " , TasksForDesired=@TasksForDesired"
             sqlString += " , LastUpdate=LastUpdate+1"
@@ -11047,7 +11208,7 @@ Namespace SCP.DAL
                     sqlCmd.ExecuteScalar()
                     cn.Close()
                 Catch ex As Exception
-                    scriviLog("hs_amb_Calendar_Update " & ex.Message)
+                    scriviLog("hs_Cron_Calendar_Update " & ex.Message)
                     Return retVal
                 End Try
                 retVal = True
@@ -11055,10 +11216,10 @@ Namespace SCP.DAL
             Return retVal
         End Function
 
-        Public Overrides Function hs_amb_Calendar_UpdateDesired(CronId As Integer, Calyear As Integer, Calmonth As Integer, DesiredMonthData() As Integer) As Boolean
+        Public Overrides Function hs_Cron_Calendar_UpdateDesired(CronId As Integer, Calyear As Integer, Calmonth As Integer, DesiredMonthData() As Integer) As Boolean
             Dim retVal As Boolean = False
             Dim sqlString As String = String.Empty
-            sqlString = "update [hs_amb_Calendar]"
+            sqlString = "update [hs_Cron_Calendar]"
             sqlString += " set DesiredMonthData=@DesiredMonthData"
             sqlString += " , LastUpdate=LastUpdate+1"
             sqlString += " , dtUpdate=getdate()"
@@ -11085,7 +11246,7 @@ Namespace SCP.DAL
                     sqlCmd.ExecuteScalar()
                     cn.Close()
                 Catch ex As Exception
-                    scriviLog("hs_amb_Calendar_Update " & ex.Message)
+                    scriviLog("hs_Cron_Calendar_Update " & ex.Message)
                     Return retVal
                 End Try
                 retVal = True
@@ -11093,10 +11254,10 @@ Namespace SCP.DAL
             Return retVal
         End Function
 
-        Public Overrides Function hs_amb_Calendar_UpdateReal(CronId As Integer, Calyear As Integer, Calmonth As Integer, RealMonthData() As Integer) As Boolean
+        Public Overrides Function hs_Cron_Calendar_UpdateReal(CronId As Integer, Calyear As Integer, Calmonth As Integer, RealMonthData() As Integer) As Boolean
             Dim retVal As Boolean = False
             Dim sqlString As String = String.Empty
-            sqlString = "update [hs_amb_Calendar]"
+            sqlString = "update [hs_Cron_Calendar]"
             sqlString += " set RealMonthData=@RealMonthData"
             ' sqlString += " , DesiredMonthData=@DesiredMonthData"
             sqlString += " , LastUpdate=LastUpdate+1"
@@ -11124,13 +11285,445 @@ Namespace SCP.DAL
                     sqlCmd.ExecuteScalar()
                     cn.Close()
                 Catch ex As Exception
-                    scriviLog("hs_amb_Calendar_Update " & ex.Message)
+                    scriviLog("hs_Cron_Calendar_Update " & ex.Message)
                     Return retVal
                 End Try
                 retVal = True
             End Using
             Return retVal
         End Function
+#End Region
+
+#Region "hs_businesshour"
+        Private Function preparerecord_hs_businnesshour(reader As SqlDataReader) As hs_businesshour
+            Dim Id As Integer = 0
+            If Not IsDBNull(reader("Id")) Then
+                Id = CInt(reader("Id").ToString)
+            End If
+
+            Dim hsId As Integer = 0
+            If Not IsDBNull(reader("hsId")) Then
+                hsId = CInt(reader("hsId").ToString)
+            End If
+
+            Dim isClosedTime As Boolean = False
+            If Not IsDBNull(reader("isClosedTime")) Then
+                isClosedTime = CBool(reader("isClosedTime").ToString)
+            End If
+
+            Dim Subject As String = String.Empty
+            If Not IsDBNull(reader("Subject")) Then
+                Subject = CStr(reader("Subject").ToString)
+            End If
+
+            Dim StartDate As Date = FormatDateTime("01/01/1900", DateFormat.GeneralDate)
+            If Not IsDBNull(reader("StartDate")) Then
+                If IsDate(reader("StartDate")) Then
+                    StartDate = reader("StartDate")
+                End If
+            End If
+
+            Dim EndDate As Date = FormatDateTime("01/01/1900", DateFormat.GeneralDate)
+            If Not IsDBNull(reader("EndDate")) Then
+                If IsDate(reader("EndDate")) Then
+                    EndDate = reader("EndDate")
+                End If
+            End If
+
+            Dim RecurrencePattern As String = String.Empty
+            If Not IsDBNull(reader("RecurrencePattern")) Then
+                RecurrencePattern = CStr(reader("RecurrencePattern").ToString)
+            End If
+
+            Dim ExceptionAppointments As String = String.Empty
+            If Not IsDBNull(reader("ExceptionAppointments")) Then
+                ExceptionAppointments = CStr(reader("ExceptionAppointments").ToString)
+            End If
+
+            Dim _obj As hs_businesshour = New hs_businesshour(Id, hsId, isClosedTime, Subject, StartDate, EndDate, RecurrencePattern, ExceptionAppointments)
+            Return _obj
+        End Function
+
+        Public Overrides Function hs_businesshour_Add(hsId As Integer, isClosedTime As Boolean, Subject As String, StartDate As Date, EndDate As Date, RecurrencePattern As String, ExceptionAppointments As String) As Boolean
+            Dim retVal As Integer = 0
+            Dim sqlString As String = String.Empty
+            sqlString = "INSERT INTO [hs_businesshour]"
+            sqlString += "           ([hsId]"
+            sqlString += "           ,[isClosedTime]"
+            sqlString += "           ,[Subject]"
+            sqlString += "           ,[StartDate]"
+            sqlString += "           ,[EndDate]"
+            sqlString += "           ,[RecurrencePattern]"
+            sqlString += "           ,[ExceptionAppointments]"
+            sqlString += ")"
+            sqlString += "     VALUES"
+            sqlString += "           (@hsId"
+            sqlString += "           ,@isClosedTime"
+            sqlString += "           ,@Subject"
+            sqlString += "           ,@StartDate"
+            sqlString += "           ,@EndDate"
+            sqlString += "           ,@RecurrencePattern"
+            sqlString += "           ,@ExceptionAppointments"
+            sqlString += ")"
+
+
+            Dim sqlCmd As SqlCommand = New SqlCommand()
+            sqlCmd.CommandText = sqlString
+            AddParamToSQLCmd(sqlCmd, "@hsId", SqlDbType.Int, 0, ParameterDirection.Input, hsId)
+            AddParamToSQLCmd(sqlCmd, "@isClosedTime", SqlDbType.Bit, 0, ParameterDirection.Input, isClosedTime)
+
+            AddParamToSQLCmd(sqlCmd, "@Subject", SqlDbType.NVarChar, 100, ParameterDirection.Input, UCase(Subject))
+            AddParamToSQLCmd(sqlCmd, "@StartDate", SqlDbType.SmallDateTime, 0, ParameterDirection.Input, StartDate)
+            AddParamToSQLCmd(sqlCmd, "@EndDate", SqlDbType.SmallDateTime, 0, ParameterDirection.Input, EndDate)
+            AddParamToSQLCmd(sqlCmd, "@RecurrencePattern", SqlDbType.NVarChar, 255, ParameterDirection.Input, RecurrencePattern)
+            AddParamToSQLCmd(sqlCmd, "@ExceptionAppointments", SqlDbType.Text, 0, ParameterDirection.Input, ExceptionAppointments)
+
+            Using cn As SqlConnection = New SqlConnection(DataAccess.SCP)
+                Try
+                    sqlCmd.Connection = cn
+                    cn.Open()
+                    sqlCmd.ExecuteScalar()
+                    cn.Close()
+                Catch ex As Exception
+                    scriviLog("hs_businesshour_Add " & ex.Message)
+                    Return retVal
+                End Try
+                retVal = True
+            End Using
+            Return retVal
+        End Function
+
+        Public Overrides Function hs_businesshour_Del(Id As Integer) As Boolean
+            Dim retVal As Boolean = False
+            Dim sqlString As String = String.Empty
+            sqlString = "delete from [hs_businesshour]"
+            sqlString += " where Id=@Id"
+
+            Dim sqlCmd As SqlCommand = New SqlCommand()
+            sqlCmd.CommandText = sqlString
+            AddParamToSQLCmd(sqlCmd, "@Id", SqlDbType.Int, 0, ParameterDirection.Input, Id)
+
+            Using cn As SqlConnection = New SqlConnection(DataAccess.SCP)
+                Try
+                    sqlCmd.Connection = cn
+                    cn.Open()
+                    sqlCmd.ExecuteScalar()
+                    cn.Close()
+                Catch ex As Exception
+                    scriviLog("hs_businesshour_Del " & ex.Message)
+                    Return retVal
+                End Try
+                retVal = True
+            End Using
+            Return retVal
+        End Function
+
+        Public Overrides Function hs_businesshour_List(hsId As Integer) As List(Of hs_businesshour)
+            Dim sqlString As String = String.Empty
+            sqlString = "SELECT hs_businesshour.*"
+            sqlString += " FROM hs_businesshour "
+            sqlString += " where hsId=@hsId"
+
+            Dim sqlCmd As SqlCommand = New SqlCommand()
+            sqlCmd.CommandText = sqlString
+            AddParamToSQLCmd(sqlCmd, "@hsId", SqlDbType.Int, 0, ParameterDirection.Input, hsId)
+
+            Dim _List As New List(Of hs_businesshour)()
+
+            Dim Connection As New SqlConnection(DataAccess.SCP)
+            Connection.Open()
+            sqlCmd.Connection() = Connection
+
+
+            Dim reader As SqlDataReader = sqlCmd.ExecuteReader()
+            Try
+                Do While reader.Read
+                    _List.Add(preparerecord_hs_businnesshour(reader))
+                Loop
+            Catch ex As Exception
+                scriviLog("hs_businesshour_List " & ex.Message)
+            End Try
+            If (Not reader Is Nothing) Then
+                reader.Close()
+            End If
+            If (Not Connection Is Nothing) Then
+                Connection.Close()
+                Connection = Nothing
+            End If
+            If _List.Count > 0 Then
+                Return _List
+            Else
+                Return Nothing
+            End If
+        End Function
+
+        Public Overrides Function hs_businesshour_Read(Id As Integer) As hs_businesshour
+            Dim sqlString As String = String.Empty
+            sqlString = "SELECT *"
+            sqlString += " FROM hs_businesshour "
+            sqlString += " where Id=@Id"
+
+            Dim sqlCmd As SqlCommand = New SqlCommand()
+            sqlCmd.CommandText = sqlString
+            AddParamToSQLCmd(sqlCmd, "@Id", SqlDbType.Int, 0, ParameterDirection.Input, Id)
+
+            Dim _List As New List(Of hs_businesshour)()
+
+            Dim Connection As New SqlConnection(DataAccess.SCP)
+            Connection.Open()
+            sqlCmd.Connection() = Connection
+
+            Dim reader As SqlDataReader = sqlCmd.ExecuteReader()
+            Try
+                If reader.Read Then
+                    _List.Add(preparerecord_hs_businnesshour(reader))
+                End If
+            Catch ex As Exception
+                scriviLog("hs_businesshour_Read " & ex.Message)
+            End Try
+            If (Not reader Is Nothing) Then
+                reader.Close()
+            End If
+            If (Not Connection Is Nothing) Then
+                Connection.Close()
+                Connection = Nothing
+            End If
+            If _List.Count > 0 Then
+                Return _List(0)
+            Else
+                Return Nothing
+            End If
+        End Function
+
+        Public Overrides Function hs_businesshour_Update(Id As Integer, isClosedTime As Boolean, Subject As String, StartDate As String, EndDate As String, RecurrencePattern As String, ExceptionAppointments As String) As Boolean
+            Dim retVal As Boolean = False
+            Dim sqlString As String = String.Empty
+            sqlString = "update [hs_businesshour]"
+            sqlString += " set Subject=@Subject"
+            sqlString += "   , isClosedTime=@isClosedTime"
+            sqlString += "   ,StartDate=@StartDate"
+            sqlString += "   ,EndDate=@EndDate"
+            sqlString += "   ,RecurrencePattern=@RecurrencePattern"
+            sqlString += "   ,ExceptionAppointments=@ExceptionAppointments"
+
+            sqlString += " where Id=@Id"
+
+            Dim sqlCmd As SqlCommand = New SqlCommand()
+            sqlCmd.CommandText = sqlString
+
+            AddParamToSQLCmd(sqlCmd, "@Id", SqlDbType.Int, 0, ParameterDirection.Input, Id)
+            AddParamToSQLCmd(sqlCmd, "@isClosedTime", SqlDbType.Bit, 0, ParameterDirection.Input, isClosedTime)
+            AddParamToSQLCmd(sqlCmd, "@Subject", SqlDbType.NVarChar, 100, ParameterDirection.Input, UCase(Subject))
+            AddParamToSQLCmd(sqlCmd, "@StartDate", SqlDbType.SmallDateTime, 0, ParameterDirection.Input, StartDate)
+            AddParamToSQLCmd(sqlCmd, "@EndDate", SqlDbType.SmallDateTime, 0, ParameterDirection.Input, EndDate)
+            AddParamToSQLCmd(sqlCmd, "@RecurrencePattern", SqlDbType.NVarChar, 255, ParameterDirection.Input, RecurrencePattern)
+            AddParamToSQLCmd(sqlCmd, "@ExceptionAppointments", SqlDbType.Text, 0, ParameterDirection.Input, ExceptionAppointments)
+
+            Using cn As SqlConnection = New SqlConnection(DataAccess.SCP)
+                Try
+                    sqlCmd.Connection = cn
+                    cn.Open()
+                    sqlCmd.ExecuteScalar()
+                    cn.Close()
+                Catch ex As Exception
+                    scriviLog("hs_businesshour_Update " & ex.Message)
+                    Return retVal
+                End Try
+                retVal = True
+            End Using
+            Return retVal
+        End Function
+#End Region
+
+#Region "LuxCron"
+        Private Function preparerecord_LuxCron(reader As SqlDataReader) As LuxCron
+            Dim Id As Integer = 0
+            If Not IsDBNull(reader("Id")) Then
+                Id = CInt(reader("Id").ToString)
+            End If
+
+            Dim LuxId As Integer = 0
+            If Not IsDBNull(reader("LuxId")) Then
+                LuxId = CInt(reader("LuxId").ToString)
+            End If
+
+            Dim LuxCod As String = String.Empty
+            If Not IsDBNull(reader("LuxCod")) Then
+                LuxCod = reader("LuxCod").ToString
+            End If
+
+            Dim LuxDescr As String = String.Empty
+            If Not IsDBNull(reader("LuxDescr")) Then
+                LuxDescr = CStr(reader("LuxDescr"))
+            End If
+
+            Dim CronId As Integer = 0
+            If Not IsDBNull(reader("CronId")) Then
+                CronId = CInt(reader("CronId").ToString)
+            End If
+
+            Dim CronCod As String = String.Empty
+            If Not IsDBNull(reader("CronCod")) Then
+                CronCod = reader("CronCod").ToString
+            End If
+
+            Dim CronDescr As String = String.Empty
+            If Not IsDBNull(reader("CronDescr")) Then
+                CronDescr = CStr(reader("CronDescr"))
+            End If
+
+            Dim _obj As LuxCron = New LuxCron(Id, LuxId, CronId, LuxCod, LuxDescr, CronCod, CronDescr)
+            Return _obj
+        End Function
+
+        Public Overrides Function LuxCron_Add(LuxId As Integer, CronId As Integer, UserName As String) As Boolean
+            Dim retVal As Boolean = False
+            Dim sqlString As String = String.Empty
+            sqlString = "insert into [LuxCron]"
+            sqlString += "(LuxId,"
+            sqlString += "[CronId],"
+            sqlString += "[UserName]"
+            sqlString += ")"
+            sqlString += " values("
+            sqlString += "@LuxId,"
+            sqlString += "@CronId,"
+            sqlString += "@UserName"
+            sqlString += ")"
+
+            Dim sqlCmd As SqlCommand = New SqlCommand()
+            sqlCmd.CommandText = sqlString
+
+            AddParamToSQLCmd(sqlCmd, "@LuxId", SqlDbType.Int, 0, ParameterDirection.Input, LuxId)
+            AddParamToSQLCmd(sqlCmd, "@CronId", SqlDbType.Int, 0, ParameterDirection.Input, CronId)
+            AddParamToSQLCmd(sqlCmd, "@UserName", SqlDbType.NVarChar, 256, ParameterDirection.Input, UserName)
+
+            Using cn As SqlConnection = New SqlConnection(DataAccess.SCP)
+                Try
+                    sqlCmd.Connection = cn
+                    cn.Open()
+                    sqlCmd.ExecuteScalar()
+                    cn.Close()
+                Catch ex As Exception
+                    scriviLog("LuxCron_Add " & ex.Message)
+                    Return retVal
+                End Try
+                retVal = True
+            End Using
+            Return retVal
+        End Function
+
+        Public Overrides Function LuxCron_Del(Id As Integer) As Boolean
+            Dim retVal As Boolean = False
+            Dim sqlString As String = String.Empty
+            sqlString = "delete from [LuxCron]"
+            sqlString += " where Id=@Id"
+
+            Dim sqlCmd As SqlCommand = New SqlCommand()
+            sqlCmd.CommandText = sqlString
+
+            AddParamToSQLCmd(sqlCmd, "@Id", SqlDbType.Int, 0, ParameterDirection.Input, Id)
+
+            Using cn As SqlConnection = New SqlConnection(DataAccess.SCP)
+                Try
+                    sqlCmd.Connection = cn
+                    cn.Open()
+                    sqlCmd.ExecuteScalar()
+                    cn.Close()
+                Catch ex As Exception
+                    scriviLog("LuxCron_Del " & ex.Message)
+                    Return retVal
+                End Try
+                retVal = True
+            End Using
+            Return retVal
+        End Function
+
+        Public Overrides Function LuxCron_List(LuxId As Integer) As List(Of LuxCron)
+            Dim sqlString As String = String.Empty
+            sqlString = "SELECT LuxCron.*"
+            sqlString += " , Lux.Cod as LuxCod, Lux.Descr as LuxDescr"
+            sqlString += " , hs_Cron.CronCod, hs_Cron.CronDescr"
+            sqlString += " FROM LuxCron"
+            sqlString += " inner join Lux on LuxCron.LuxId=Lux.Id"
+            sqlString += " inner join hs_Cron on LuxCron.CronId=hs_Cron.CronId"
+            sqlString += " where LuxCron.LuxId=@LuxId"
+            sqlString += " order by dbo.CodSort(Cod)"
+
+            Dim sqlCmd As SqlCommand = New SqlCommand()
+            sqlCmd.CommandText = sqlString
+            AddParamToSQLCmd(sqlCmd, "@LuxId", SqlDbType.Int, 0, ParameterDirection.Input, LuxId)
+
+            Dim _List As New List(Of LuxCron)()
+
+            Dim Connection As New SqlConnection(DataAccess.SCP)
+            Connection.Open()
+            sqlCmd.Connection() = Connection
+
+            Dim reader As SqlDataReader = sqlCmd.ExecuteReader()
+            Try
+                Do While reader.Read
+                    _List.Add(preparerecord_LuxCron(reader))
+                Loop
+            Catch ex As Exception
+                scriviLog("LuxCron_List " & ex.Message)
+            End Try
+            If (Not reader Is Nothing) Then
+                reader.Close()
+            End If
+            If (Not Connection Is Nothing) Then
+                Connection.Close()
+                Connection = Nothing
+            End If
+            If _List.Count > 0 Then
+                Return _List
+            Else
+                Return Nothing
+            End If
+        End Function
+
+        Public Overrides Function LuxCron_Read(Id As Integer) As LuxCron
+            Dim sqlString As String = String.Empty
+            sqlString = "SELECT LuxCron.*"
+            sqlString += " , Lux.Cod as LuxCod, Lux.Descr as LuxDescr"
+            sqlString += " , hs_Cron.CronCod, hs_Cron.CronDescr"
+            sqlString += " FROM LuxCron"
+            sqlString += " inner join Lux on LuxCron.LuxId=Lux.Id"
+            sqlString += " inner join hs_Cron on LuxCron.CronId=hs_Cron.CronId"
+            sqlString += " where LuxCron.LuxId=@Id"
+
+            Dim sqlCmd As SqlCommand = New SqlCommand()
+            sqlCmd.CommandText = sqlString
+            AddParamToSQLCmd(sqlCmd, "@Id", SqlDbType.Int, 0, ParameterDirection.Input, Id)
+
+            Dim _List As New List(Of LuxCron)()
+
+            Dim Connection As New SqlConnection(DataAccess.SCP)
+            Connection.Open()
+            sqlCmd.Connection() = Connection
+
+            Dim reader As SqlDataReader = sqlCmd.ExecuteReader()
+            Try
+                If reader.Read Then
+                    _List.Add(preparerecord_LuxCron(reader))
+                End If
+            Catch ex As Exception
+                scriviLog("LuxCron_Read " & ex.Message)
+            End Try
+            If (Not reader Is Nothing) Then
+                reader.Close()
+            End If
+            If (Not Connection Is Nothing) Then
+                Connection.Close()
+                Connection = Nothing
+            End If
+            If _List.Count > 0 Then
+                Return _List(0)
+            Else
+                Return Nothing
+            End If
+        End Function
+
+
 #End Region
 
 #Region "log_hs_Cron"
@@ -11748,12 +12341,22 @@ Namespace SCP.DAL
                 IdAmbiente = CInt(reader("IdAmbiente").ToString)
             End If
 
+            Dim Cod As String = 0
+            If Not IsDBNull(reader("Cod")) Then
+                Cod = reader("Cod").ToString
+            End If
+
             Dim DescrizioneAmbiente As String = 0
             If Not IsDBNull(reader("DescrizioneAmbiente")) Then
                 DescrizioneAmbiente = reader("DescrizioneAmbiente").ToString
             End If
 
-            Dim _obj As Ambienti = New Ambienti(hsId, IdAmbiente, DescrizioneAmbiente)
+            Dim CronCod As String = 0
+            If Not IsDBNull(reader("CronCod")) Then
+                CronCod = reader("CronCod").ToString
+            End If
+
+            Dim _obj As Ambienti = New Ambienti(hsId, IdAmbiente, Cod, DescrizioneAmbiente, CronCod)
             Return _obj
 
         End Function
@@ -11800,7 +12403,7 @@ Namespace SCP.DAL
             End If
         End Function
 
-        Public Overrides Function Ambienti_Read(IdAmbiente As Integer) As Ambienti
+        Public Overrides Function Ambienti_Read(hsId As Integer, IdAmbiente As Integer) As Ambienti
             Dim sqlString As String = String.Empty
             sqlString = "select Ambienti.*"
             sqlString += " FROM Ambienti "
@@ -11809,6 +12412,7 @@ Namespace SCP.DAL
             Dim sqlCmd As SqlCommand = New SqlCommand()
             sqlCmd.CommandText = sqlString
             AddParamToSQLCmd(sqlCmd, "@IdAmbiente", SqlDbType.Int, 0, ParameterDirection.Input, IdAmbiente)
+            AddParamToSQLCmd(sqlCmd, "@hsId", SqlDbType.Int, 0, ParameterDirection.Input, hsId)
 
             Dim _List As New List(Of Ambienti)()
 
@@ -11838,7 +12442,48 @@ Namespace SCP.DAL
             End If
         End Function
 
+        Public Overrides Function Ambienti_SetCron(hsId As Integer, IdAmbiente As Integer, CronCod As String) As Ambienti
+            Dim sqlString As String = String.Empty
+            sqlString = "update Ambienti"
+            sqlString += " set CronCod=@CronCod "
+            sqlString += " where Ambienti.IdAmbiente=@IdAmbiente and hsId=@hsId"
+
+            Dim sqlCmd As SqlCommand = New SqlCommand()
+            sqlCmd.CommandText = sqlString
+            AddParamToSQLCmd(sqlCmd, "@IdAmbiente", SqlDbType.Int, 0, ParameterDirection.Input, IdAmbiente)
+            AddParamToSQLCmd(sqlCmd, "@CronCod", SqlDbType.NVarChar, 10, ParameterDirection.Input, CronCod)
+            AddParamToSQLCmd(sqlCmd, "@hsId", SqlDbType.Int, 0, ParameterDirection.Input, hsId)
+
+            Dim _List As New List(Of Ambienti)()
+
+            Dim Connection As New SqlConnection(DataAccess.SCP)
+            Connection.Open()
+            sqlCmd.Connection() = Connection
+
+            Dim reader As SqlDataReader = sqlCmd.ExecuteReader()
+            Try
+                If reader.Read Then
+                    _List.Add(prepareRecord_Ambienti(reader))
+                End If
+            Catch ex As Exception
+                scriviLog("Ambienti_SetCron " & ex.Message)
+            End Try
+            If (Not reader Is Nothing) Then
+                reader.Close()
+            End If
+            If (Not Connection Is Nothing) Then
+                Connection.Close()
+                Connection = Nothing
+            End If
+            If _List.Count > 0 Then
+                Return _List(0)
+            Else
+                Return Nothing
+            End If
+        End Function
+
 #End Region
+
 
 
     End Class

@@ -18,22 +18,23 @@ Namespace SCP.BLL
 
 #Region "constructor"
         Public Sub New()
-            Me.New(0, 0, 0, False, 0, String.Empty, String.Empty, 0, String.Empty, String.Empty, FormatDateTime("01/01/1900", DateFormat.GeneralDate), 0, 0, 0)
+            Me.New(0, 0, 0, False, 0, String.Empty, String.Empty, 0, String.Empty, String.Empty, FormatDateTime("01/01/1900", DateFormat.GeneralDate), 0, 0, 0, 0)
         End Sub
-        Public Sub New(m_CronId As Integer, _
-                       m_hsId As Integer, _
-                       m_SetPoint As Decimal, _
-                       m_isOn As Boolean, _
-                       m_TLocal As Decimal, _
-                       m_CronCod As String, _
-                       m_CronDescr As String, _
-                       m_stato As Integer, _
-                       m_NoteInterne As String, _
-                       m_marcamodello As String, _
-                       m_installationDate As Date, _
-                       m_Latitude As Decimal, _
-                       m_Longitude As Decimal, _
-                       m_CronType As Integer)
+        Public Sub New(m_CronId As Integer,
+                       m_hsId As Integer,
+                       m_SetPoint As Decimal,
+                       m_isOn As Boolean,
+                       m_TLocal As Decimal,
+                       m_CronCod As String,
+                       m_CronDescr As String,
+                       m_stato As Integer,
+                       m_NoteInterne As String,
+                       m_marcamodello As String,
+                       m_installationDate As Date,
+                       m_Latitude As Decimal,
+                       m_Longitude As Decimal,
+                       m_CronType As Integer,
+                       m_RemoteConnId As Integer)
             CronId = m_CronId
             hsId = m_hsId
             SetPoint = m_SetPoint
@@ -48,6 +49,7 @@ Namespace SCP.BLL
             Latitude = m_Latitude
             Longitude = m_Longitude
             CronType = m_CronType
+            RemoteConnId = m_RemoteConnId
         End Sub
 #End Region
 
@@ -79,7 +81,7 @@ Namespace SCP.BLL
             Dim retVal As Boolean = False
             retVal = DataAccessHelper.GetDataAccess.hs_Cron_Del(CronId)
             If retVal = True Then
-                DataAccessHelper.GetDataAccess.hs_amb_Profile_Clear(CronId)
+                DataAccessHelper.GetDataAccess.hs_Cron_Profile_Clear(CronId)
             End If
             Return retVal
         End Function
@@ -174,20 +176,39 @@ Namespace SCP.BLL
 
             Dim CronCod As String = String.Empty
             Dim hsId As Integer = 0
+            Dim RemoteConnId As Integer = 0
             Dim m_hs_Cron As SCP.BLL.hs_Cron = SCP.BLL.hs_Cron.Read(CronId)
             If Not m_hs_Cron Is Nothing Then
                 CronCod = m_hs_Cron.CronCod
                 hsId = m_hs_Cron.hsId
+                RemoteConnId = m_hs_Cron.RemoteConnId
                 m_hs_Cron = Nothing
             End If
 
             Dim connectionType As Integer = 0
             Dim remoteAddress As String = String.Empty
             Dim remotePort As Integer = 0
-            Dim hs As SCP.BLL.HeatingSystem = SCP.BLL.HeatingSystem.Read(hsId)
-            If Not hs Is Nothing Then
-                If hs.VPNConnectionId > 0 Then
-                    Dim remoteConnection As SCP.BLL.Impianti_RemoteConnections = SCP.BLL.Impianti_RemoteConnections.Read(hs.IdImpianto, hs.VPNConnectionId)
+            If RemoteConnId <= 0 Then
+                Dim hs As SCP.BLL.HeatingSystem = SCP.BLL.HeatingSystem.Read(hsId)
+                If Not hs Is Nothing Then
+                    If hs.VPNConnectionId > 0 Then
+                        Dim remoteConnection As SCP.BLL.Impianti_RemoteConnections = SCP.BLL.Impianti_RemoteConnections.Read(hs.IdImpianto, hs.VPNConnectionId)
+                        If Not remoteConnection Is Nothing Then
+                            If remoteConnection.connectionType = 2 Or remoteConnection.connectionType = 3 Then
+                                connectionType = remoteConnection.connectionType
+                                remoteAddress = remoteConnection.remoteAddress
+                                remotePort = remoteConnection.remotePort
+                            End If
+                            remoteConnection = Nothing
+                        End If
+                    End If
+                    hs = Nothing
+                End If
+
+            Else
+                Dim hs As SCP.BLL.HeatingSystem = SCP.BLL.HeatingSystem.Read(hsId)
+                If Not hs Is Nothing Then
+                    Dim remoteConnection As SCP.BLL.Impianti_RemoteConnections = SCP.BLL.Impianti_RemoteConnections.Read(hs.IdImpianto, RemoteConnId)
                     If Not remoteConnection Is Nothing Then
                         If remoteConnection.connectionType = 2 Or remoteConnection.connectionType = 3 Then
                             connectionType = remoteConnection.connectionType
@@ -197,7 +218,6 @@ Namespace SCP.BLL
                         remoteConnection = Nothing
                     End If
                 End If
-                hs = Nothing
             End If
             If remotePort <= 0 Then Return False
 
@@ -243,7 +263,7 @@ Namespace SCP.BLL
         Public Property Latitude As Decimal
         Public Property Longitude As Decimal
         Public Property CronType As Integer
-
+        Public Property RemoteConnId As Integer
 #End Region
     End Class
 End Namespace

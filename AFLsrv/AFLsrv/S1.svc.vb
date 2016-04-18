@@ -1692,6 +1692,27 @@ Public Class S1
         If Id <= 0 Then Return False
         Return SCP.BLL.Lux.setGeoLocation(Id, Latitude, Longitude)
     End Function
+
+    <OperationContract()>
+    <WebGet()>
+    Public Function Lux_cmd_LightOn(Id As Integer) As Boolean
+        If Id <= 0 Then Return False
+        Return SCP.BLL.Lux.cmd_LightOn(Id)
+    End Function
+
+    <OperationContract()>
+    <WebGet()>
+    Public Function Lux_cmd_LightOff(Id As Integer) As Boolean
+        If Id <= 0 Then Return False
+        Return SCP.BLL.Lux.cmd_LightOff(Id)
+    End Function
+
+    <OperationContract()>
+    <WebGet()>
+    Public Function Lux_cmd_RestoreWorkingMode(Id As Integer) As Boolean
+        If Id <= 0 Then Return False
+        Return SCP.BLL.Lux.cmd_RestoreWorkingMode(Id)
+    End Function
 #End Region
 #Region "Lux_replacement_history"
     <OperationContract()>
@@ -2554,12 +2575,123 @@ Public Class S1
         Return SCP.BLL.hs_Cron_replacement_history.Update(Id, marcamodello, _installationDate, note, userName)
     End Function
 #End Region
-#Region "hs_amb_Profile (cronotermostati profili correnti)"
+
+#Region "log_hs_Cron"
     <OperationContract()>
     <WebGet()>
-    Public Function hs_amb_Profile_get(hsid As Integer, CronCod As String, ProfileYear As Integer, ProfileNr As Integer) As hs_amb_Profile
-        Return SCP.BLL.hs_amb_Profile.getProfile(hsid, CronCod, ProfileYear, ProfileNr)
-        'Dim retVal As hs_amb_Profile = Nothing
+    Public Function log_hs_Cron_List(hsId As Integer, CronCod As String, fromDate As String, toDate As String) As List(Of log_hs_Cron)
+        If hsId <= 0 Then
+            Return Nothing
+        End If
+        If String.IsNullOrEmpty(CronCod) Then
+            Return Nothing
+        End If
+        Dim _fromDate As Date = CDate(fromDate)
+        Dim a As Date = CDate(toDate)
+        Dim b As Date = DateAdd(DateInterval.Day, 1, a)
+        Dim _toDate As Date = DateAdd(DateInterval.Minute, -1, b)
+        Return SCP.BLL.log_hs_Cron.List(hsId, CronCod, _fromDate, _toDate)
+    End Function
+
+    <OperationContract()>
+    <WebGet()>
+    Public Function log_hs_Cron_ListPaged(hsId As Integer, CronCod As String, fromDate As String, toDate As String, rowNumber As Integer) As List(Of log_hs_Cron)
+        If hsId <= 0 Then
+            Return Nothing
+        End If
+        If String.IsNullOrEmpty(CronCod) Then
+            Return Nothing
+        End If
+
+        Dim _fromDate As Date = CDate(fromDate)
+        Dim a As Date = CDate(toDate)
+        Dim b As Date = DateAdd(DateInterval.Day, 1, a)
+        Dim _toDate As Date = DateAdd(DateInterval.Minute, -1, b)
+
+        Return SCP.BLL.log_hs_Cron.ListPaged(hsId, CronCod, _fromDate, _toDate, rowNumber)
+    End Function
+
+    <OperationContract()>
+    <WebGet()>
+    Public Function log_hs_Cron_ListAll(hsId As Integer, fromDate As String, toDate As String) As List(Of log_hs_Cron)
+        If hsId <= 0 Then
+            Return Nothing
+        End If
+        Dim _fromDate As Date = CDate(fromDate)
+        Dim a As Date = CDate(toDate)
+        Dim b As Date = DateAdd(DateInterval.Day, 1, a)
+        Dim _toDate As Date = DateAdd(DateInterval.Minute, -1, b)
+        Return SCP.BLL.log_hs_Cron.ListAll(hsId, _fromDate, _toDate)
+    End Function
+#End Region
+#Region "LuxCron"
+    <OperationContract()>
+    <WebGet()>
+    Public Function LuxCron_Add(LuxId As Integer, CronId As Integer, UserName As String) As Boolean
+        If LuxId <= 0 Then Return False
+        If CronId <= 0 Then Return False
+        Return SCP.BLL.LuxCron.Add(LuxId, CronId, UserName)
+    End Function
+
+    <OperationContract()>
+    <WebGet()>
+    Public Function LuxCron_Del(Id As Integer) As Boolean
+        If Id <= 0 Then Return False
+        Return SCP.BLL.LuxCron.Del(Id)
+    End Function
+
+    <OperationContract()>
+    <WebGet()>
+    Public Function LuxCron_List(LuxId As Integer) As List(Of LuxCron)
+        If LuxId <= 0 Then Return Nothing
+        Return SCP.BLL.LuxCron.List(LuxId)
+    End Function
+
+    <OperationContract()>
+    <WebGet()>
+    Public Function LuxCron_Read(Id As Integer) As LuxCron
+        If Id <= 0 Then Return Nothing
+        Return SCP.BLL.LuxCron.Read(Id)
+    End Function
+
+
+#End Region
+
+#Region "Ambienti"
+    <OperationContract()>
+    <WebGet()>
+    Public Function Ambienti_List(hsId As Integer) As List(Of Ambienti)
+        If hsId <= 0 Then
+            Return Nothing
+        End If
+        Return SCP.BLL.Ambienti.List(hsId)
+    End Function
+
+    <OperationContract()>
+    <WebGet()>
+    Public Function Ambienti_Read(hsId As Integer, IdAmbiente As Integer) As Ambienti
+        If IdAmbiente <= 0 Then
+            Return Nothing
+        End If
+        Return SCP.BLL.Ambienti.Read(hsId, IdAmbiente)
+    End Function
+
+    <OperationContract()>
+    <WebGet()>
+    Public Function Ambienti_SetCron(hsId As Integer, IdAmbiente As Integer, CronCod As String) As Ambienti
+        If IdAmbiente <= 0 Then
+            Return Nothing
+        End If
+        Return SCP.BLL.Ambienti.SetCron(hsId, IdAmbiente, CronCod)
+    End Function
+#End Region
+
+#Region "hs_Cron_Profile (cronotermostati profili correnti)"
+    <OperationContract()>
+    <WebGet()>
+    Public Function hs_cron_Profile_get(hsid As Integer, CronCod As String, ProfileYear As Integer, ProfileNr As Integer) As hs_Cron_Profile
+        Return SCP.BLL.hs_Cron_Profile.getProfile(hsid, CronCod, ProfileYear, ProfileNr)
+        'Dim retVal As hs_Cron_Profile = Nothing
 
         'If hsid <= 0 Then Return Nothing
         'If String.IsNullOrEmpty(CronCod) Then Return Nothing
@@ -2630,7 +2762,7 @@ Public Class S1
         '                ar(ii) = Mid(data2Elabor, x + 1, 4)
         '                ii = ii + 1
         '            Next
-        '            retVal = New hs_amb_Profile
+        '            retVal = New hs_Cron_Profile
         '            retVal.CronId = CronId
         '            retVal.ProfileY = ProfileYear
         '            retVal.ProfileNr = ProfileNr
@@ -2645,13 +2777,13 @@ Public Class S1
         '            Next
         '            retVal.ProfileData = profileData
 
-        '            Dim obj As SCP.BLL.hs_amb_Profile = SCP.BLL.hs_amb_Profile.Read(retVal.CronId, retVal.ProfileY, retVal.ProfileNr)
+        '            Dim obj As SCP.BLL.hs_Cron_Profile = SCP.BLL.hs_Cron_Profile.Read(retVal.CronId, retVal.ProfileY, retVal.ProfileNr)
         '            If Not obj Is Nothing Then
-        '                SCP.BLL.hs_amb_Profile.Update(retVal.CronId, retVal.ProfileY, retVal.ProfileNr, obj.descr, retVal.ProfileData)
+        '                SCP.BLL.hs_Cron_Profile.Update(retVal.CronId, retVal.ProfileY, retVal.ProfileNr, obj.descr, retVal.ProfileData)
         '                retVal.descr = obj.descr
         '                obj = Nothing
         '            Else
-        '                SCP.BLL.hs_amb_Profile.Add(retVal.CronId, retVal.ProfileY, retVal.ProfileNr, "profilo " & retVal.ProfileNr.ToString, retVal.ProfileData)
+        '                SCP.BLL.hs_Cron_Profile.Add(retVal.CronId, retVal.ProfileY, retVal.ProfileNr, "profilo " & retVal.ProfileNr.ToString, retVal.ProfileData)
         '                retVal.descr = "profilo " & retVal.ProfileNr.ToString
         '            End If
 
@@ -2668,41 +2800,70 @@ Public Class S1
 
     <OperationContract()>
     <WebGet()>
-    Public Function hs_amb_Profile_List(CronId As Integer, ProfileY As Integer) As List(Of hs_amb_Profile)
+    Public Function hs_cron_Profile_List(CronId As Integer, ProfileY As Integer) As List(Of hs_Cron_Profile)
         If CronId <= 0 Then Return Nothing
         If ProfileY <= 1900 Then Return Nothing
-        Return SCP.BLL.hs_amb_Profile.List(CronId, ProfileY)
+        Return SCP.BLL.hs_Cron_Profile.List(CronId, ProfileY)
     End Function
 
     <OperationContract()>
     <WebGet()>
-    Public Function hs_amb_Profile_Read(CronId As Integer, ProfileYear As Integer, ProfileNr As Integer) As hs_amb_Profile
-        Return SCP.BLL.hs_amb_Profile.Read(CronId, ProfileYear, ProfileNr)
+    Public Function hs_cron_Profile_Read(CronId As Integer, ProfileYear As Integer, ProfileNr As Integer) As hs_Cron_Profile
+        Return SCP.BLL.hs_Cron_Profile.Read(CronId, ProfileYear, ProfileNr)
     End Function
 
     <OperationContract()>
     <WebGet()>
-    Public Function hs_amb_Profile_set(hsid As Integer, CronCod As String, ProfileYear As Integer, ProfileNr As Integer, strProfileData As String) As Boolean
+    Public Function hs_cron_Profile_Add(CronId As Integer, ProfileY As Integer, ProfileNr As Integer, descr As String, ProfileData As Decimal()) As Boolean
+        If CronId <= 0 Then Return False
+        If ProfileY <= 0 Then Return False
+        If ProfileNr < 0 Then Return False
+        If ProfileData.Length <= 0 Then Return False
+        Return SCP.BLL.hs_Cron_Profile.Add(CronId, ProfileY, ProfileNr, descr, ProfileData)
+    End Function
+
+    <OperationContract()>
+    <WebGet()>
+    Public Function hs_cron_Profile_set(hsid As Integer, CronCod As String, ProfileYear As Integer, ProfileNr As Integer, strProfileData As String) As Boolean
         Dim retVal As Boolean = False
 
         If hsid <= 0 Then Return False
         If String.IsNullOrEmpty(CronCod) Then Return False
 
         Dim CronId As Integer = 0
+        Dim RemoteConnId As Integer = 0
         Dim m_hs_Cron As SCP.BLL.hs_Cron = SCP.BLL.hs_Cron.ReadByCronCod(hsid, CronCod)
         If Not m_hs_Cron Is Nothing Then
             CronId = m_hs_Cron.CronId
+            RemoteConnId = m_hs_Cron.RemoteConnId
             m_hs_Cron = Nothing
         End If
-        If CronId <= 0 Then Return False
+        If CronId <= 0 Then Return Nothing
 
         Dim connectionType As Integer = 0
         Dim remoteAddress As String = String.Empty
         Dim remotePort As Integer = 0
-        Dim hs As SCP.BLL.HeatingSystem = SCP.BLL.HeatingSystem.Read(hsid)
-        If Not hs Is Nothing Then
-            If hs.VPNConnectionId > 0 Then
-                Dim remoteConnection As SCP.BLL.Impianti_RemoteConnections = SCP.BLL.Impianti_RemoteConnections.Read(hs.IdImpianto, hs.VPNConnectionId)
+        If RemoteConnId <= 0 Then
+            Dim hs As SCP.BLL.HeatingSystem = SCP.BLL.HeatingSystem.Read(hsid)
+            If Not hs Is Nothing Then
+                If hs.VPNConnectionId > 0 Then
+                    Dim remoteConnection As SCP.BLL.Impianti_RemoteConnections = SCP.BLL.Impianti_RemoteConnections.Read(hs.IdImpianto, hs.VPNConnectionId)
+                    If Not remoteConnection Is Nothing Then
+                        If remoteConnection.connectionType = 2 Or remoteConnection.connectionType = 3 Then
+                            connectionType = remoteConnection.connectionType
+                            remoteAddress = remoteConnection.remoteAddress
+                            remotePort = remoteConnection.remotePort
+                        End If
+                        remoteConnection = Nothing
+                    End If
+                End If
+                hs = Nothing
+            End If
+
+        Else
+            Dim hs As SCP.BLL.HeatingSystem = SCP.BLL.HeatingSystem.Read(hsid)
+            If Not hs Is Nothing Then
+                Dim remoteConnection As SCP.BLL.Impianti_RemoteConnections = SCP.BLL.Impianti_RemoteConnections.Read(hs.IdImpianto, RemoteConnId)
                 If Not remoteConnection Is Nothing Then
                     If remoteConnection.connectionType = 2 Or remoteConnection.connectionType = 3 Then
                         connectionType = remoteConnection.connectionType
@@ -2712,7 +2873,6 @@ Public Class S1
                     remoteConnection = Nothing
                 End If
             End If
-            hs = Nothing
         End If
         If remotePort <= 0 Then Return False
 
@@ -2763,7 +2923,9 @@ Public Class S1
                 Dim responseIdx As String = Mid(m_gmDsm.returnData, 5, 4)
                 Dim responseCod As String = Mid(m_gmDsm.returnData, 9, 4)
                 If responseCod = "0000" Then
-                    retVal = True
+
+                    retVal = SCP.BLL.hs_Cron.Restart(CronId)
+
                 End If
             End If
         End If
@@ -2773,68 +2935,68 @@ Public Class S1
 
     <OperationContract()>
     <WebGet()>
-    Public Function hs_amb_Profile_Update(CronId As Integer, ProfileY As Integer, ProfileNr As Integer, descr As String, ProfileData As Decimal()) As Boolean
+    Public Function hs_cron_Profile_Update(CronId As Integer, ProfileY As Integer, ProfileNr As Integer, descr As String, ProfileData As Decimal()) As Boolean
         If CronId <= 0 Then Return False
         If ProfileY <= 0 Then Return False
         If ProfileNr < 0 Then Return False
         If ProfileData.Length <= 0 Then Return False
-        Return SCP.BLL.hs_amb_Profile.Update(CronId, ProfileY, ProfileNr, descr, ProfileData)
+        Return SCP.BLL.hs_Cron_Profile.Update(CronId, ProfileY, ProfileNr, descr, ProfileData)
     End Function
 
     <OperationContract()>
     <WebGet()>
-    Public Function hs_amb_Profile_setProfileNow(CronId As Integer, ProfileNr As Integer) As Boolean
+    Public Function hs_cron_Profile_setProfileNow(CronId As Integer, ProfileNr As Integer) As Boolean
         If CronId <= 0 Then Return False
         If ProfileNr < 0 Then Return False
-        Return SCP.BLL.hs_amb_Profile.setProfileNow(CronId, ProfileNr)
+        Return SCP.BLL.hs_Cron_Profile.setProfileNow(CronId, ProfileNr)
     End Function
 #End Region
-#Region "hs_amb_Profile_Descr"
+#Region "hs_Cron_Profile_Descr"
     <OperationContract()>
     <WebGet()>
-    Public Function hs_amb_Profile_Descr_Add(CronId As Integer, ProfileNr As Integer, descr As String) As Boolean
+    Public Function hs_Cron_Profile_Descr_Add(CronId As Integer, ProfileNr As Integer, descr As String) As Boolean
         If CronId <= 0 Then Return False
         If ProfileNr < 0 Then Return False
         If String.IsNullOrEmpty(descr) Then Return False
-        Return SCP.BLL.hs_amb_Profile_Descr.Add(CronId, ProfileNr, descr)
+        Return SCP.BLL.hs_Cron_Profile_Descr.Add(CronId, ProfileNr, descr)
     End Function
 
     <OperationContract()>
     <WebGet()>
-    Public Function hs_amb_Profile_Descr_Del(CronId As Integer, ProfileNr As Integer) As Boolean
+    Public Function hs_Cron_Profile_Descr_Del(CronId As Integer, ProfileNr As Integer) As Boolean
         If CronId <= 0 Then Return False
         If ProfileNr < 0 Then Return False
-        Return SCP.BLL.hs_amb_Profile_Descr.Del(CronId, ProfileNr)
+        Return SCP.BLL.hs_Cron_Profile_Descr.Del(CronId, ProfileNr)
     End Function
 
     <OperationContract()>
     <WebGet()>
-    Public Function hs_amb_Profile_Descr_List(CronId As Integer) As List(Of hs_amb_Profile_Descr)
+    Public Function hs_Cron_Profile_Descr_List(CronId As Integer) As List(Of hs_Cron_Profile_Descr)
         If CronId <= 0 Then Return Nothing
-        Return SCP.BLL.hs_amb_Profile_Descr.List(CronId)
+        Return SCP.BLL.hs_Cron_Profile_Descr.List(CronId)
     End Function
 
     <OperationContract()>
     <WebGet()>
-    Public Function hs_amb_Profile_Descr_Read(CronId As Integer, ProfileNr As Integer) As hs_amb_Profile_Descr
+    Public Function hs_Cron_Profile_Descr_Read(CronId As Integer, ProfileNr As Integer) As hs_Cron_Profile_Descr
         If CronId <= 0 Then Return Nothing
         If ProfileNr < 0 Then Return Nothing
-        Return SCP.BLL.hs_amb_Profile_Descr.Read(CronId, ProfileNr)
+        Return SCP.BLL.hs_Cron_Profile_Descr.Read(CronId, ProfileNr)
     End Function
 
     <OperationContract()>
     <WebGet()>
-    Public Function hs_amb_Profile_Descr_Update(CronId As Integer, ProfileNr As Integer, descr As String) As Boolean
+    Public Function hs_Cron_Profile_Descr_Update(CronId As Integer, ProfileNr As Integer, descr As String) As Boolean
         If CronId <= 0 Then Return False
         If ProfileNr < 0 Then Return False
         If String.IsNullOrEmpty(descr) Then Return False
-        Return SCP.BLL.hs_amb_Profile_Descr.Update(CronId, ProfileNr, descr)
+        Return SCP.BLL.hs_Cron_Profile_Descr.Update(CronId, ProfileNr, descr)
     End Function
 #End Region
-#Region "hs_amb_Profile_Tasks"
+#Region "hs_Cron_Profile_Tasks"
     <OperationContract()>
     <WebGet()>
-    Public Function hs_amb_Profile_Tasks_Add(CronId As Integer,
+    Public Function hs_Cron_Profile_Tasks_Add(CronId As Integer,
                                               ProfileNr As Integer,
                                               Subject As String,
                                               StartDate As String,
@@ -2850,40 +3012,39 @@ Public Class S1
         If CronId <= 0 Then Return False
         If ProfileNr < 0 Then Return False
         If String.IsNullOrEmpty(Subject) Then Return False
-        Return SCP.BLL.hs_amb_Profile_Tasks.Add(CronId, ProfileNr, Subject, StartDate, EndDate, chkMonday, chkTuesday, chkWednesday, chkThursday, chkFriday, chkSaturday, chkSunday, yearsRepeatable)
+        Return SCP.BLL.hs_Cron_Profile_Tasks.Add(CronId, ProfileNr, Subject, StartDate, EndDate, chkMonday, chkTuesday, chkWednesday, chkThursday, chkFriday, chkSaturday, chkSunday, yearsRepeatable)
     End Function
 
     <OperationContract()>
     <WebGet()>
-    Public Function hs_amb_Profile_Tasks_Del(CronId As Integer, ProfileNr As Integer) As Boolean
-        If CronId <= 0 Then Return False
-        If ProfileNr < 0 Then Return False
-        Return SCP.BLL.hs_amb_Profile_Tasks.Del(CronId, ProfileNr)
+    Public Function hs_Cron_Profile_Tasks_Del(TaskId As Integer) As Boolean
+        If TaskId <= 0 Then Return False
+        Return SCP.BLL.hs_Cron_Profile_Tasks.Del(TaskId)
     End Function
 
     <OperationContract()>
     <WebGet()>
-    Public Function hs_amb_Profile_Tasks_List(CronId As Integer) As List(Of hs_amb_Profile_Tasks)
+    Public Function hs_Cron_Profile_Tasks_List(CronId As Integer) As List(Of hs_Cron_Profile_Tasks)
         If CronId <= 0 Then Return Nothing
-        Return SCP.BLL.hs_amb_Profile_Tasks.List(CronId)
+        Return SCP.BLL.hs_Cron_Profile_Tasks.List(CronId)
     End Function
 
     <OperationContract()>
     <WebGet()>
-    Public Function hs_amb_Profile_Tasks_ListAll() As List(Of hs_amb_Profile_Tasks)
-        Return SCP.BLL.hs_amb_Profile_Tasks.ListAll()
+    Public Function hs_Cron_Profile_Tasks_ListAll() As List(Of hs_Cron_Profile_Tasks)
+        Return SCP.BLL.hs_Cron_Profile_Tasks.ListAll()
     End Function
 
     <OperationContract()>
     <WebGet()>
-    Public Function hs_amb_Profile_Tasks_ListByMonth(CronId As Integer, calYear As Integer, calMonth As Integer) As List(Of hs_amb_Profile_Tasks)
+    Public Function hs_Cron_Profile_Tasks_ListByMonth(CronId As Integer, calYear As Integer, calMonth As Integer) As List(Of hs_Cron_Profile_Tasks)
         If CronId <= 0 Then Return Nothing
-        Return SCP.BLL.hs_amb_Profile_Tasks.ListByMonth(CronId, calYear, calMonth)
+        Return SCP.BLL.hs_Cron_Profile_Tasks.ListByMonth(CronId, calYear, calMonth)
     End Function
 
     <OperationContract()>
     <WebGet()>
-    Public Function hs_amb_Profile_Tasks_ListByDates(CronId As Integer, startDate As String, endDate As String) As List(Of hs_amb_Profile_Tasks)
+    Public Function hs_Cron_Profile_Tasks_ListByDates(CronId As Integer, startDate As String, endDate As String) As List(Of hs_Cron_Profile_Tasks)
         If CronId <= 0 Then Return Nothing
 
         Dim _startDate As Date = CDate(startDate)
@@ -2891,30 +3052,30 @@ Public Class S1
         Dim b As Date = DateAdd(DateInterval.Day, 1, a)
         Dim _endDate As Date = DateAdd(DateInterval.Minute, -1, b)
 
-        Return SCP.BLL.hs_amb_Profile_Tasks.ListByDates(CronId, _startDate, _endDate)
+        Return SCP.BLL.hs_Cron_Profile_Tasks.ListByDates(CronId, _startDate, _endDate)
     End Function
 
     <OperationContract()>
     <WebGet()>
-    Public Function hs_amb_Profile_Tasks_ListCurrent(CronId As Integer, selDate As String) As List(Of hs_amb_Profile_Tasks)
+    Public Function hs_Cron_Profile_Tasks_ListCurrent(CronId As Integer, selDate As String) As List(Of hs_Cron_Profile_Tasks)
         If CronId <= 0 Then Return Nothing
         Dim _selDate As Date = Now
         If Not String.IsNullOrEmpty(selDate) Then
             _selDate = FormatDateTime(selDate, DateFormat.GeneralDate) ' CDate(selDate)
         End If
-        Return SCP.BLL.hs_amb_Profile_Tasks.ListCurrent(CronId, _selDate)
+        Return SCP.BLL.hs_Cron_Profile_Tasks.ListCurrent(CronId, _selDate)
     End Function
 
     <OperationContract()>
     <WebGet()>
-    Public Function hs_amb_Profile_Tasks_Read(TaskId As Integer) As hs_amb_Profile_Tasks
+    Public Function hs_Cron_Profile_Tasks_Read(TaskId As Integer) As hs_Cron_Profile_Tasks
         If TaskId <= 0 Then Return Nothing
-        Return SCP.BLL.hs_amb_Profile_Tasks.Read(TaskId)
+        Return SCP.BLL.hs_Cron_Profile_Tasks.Read(TaskId)
     End Function
 
     <OperationContract()>
     <WebGet()>
-    Public Function hs_amb_Profile_Tasks_Update(TaskId As Integer,
+    Public Function hs_Cron_Profile_Tasks_Update(TaskId As Integer,
                                                  ProfileNr As Integer,
                                                  Subject As String,
                                                  StartDate As String,
@@ -2930,13 +3091,35 @@ Public Class S1
         If TaskId <= 0 Then Return Nothing
         If ProfileNr < 0 Then Return Nothing
         If String.IsNullOrEmpty(Subject) Then Return Nothing
-        Return SCP.BLL.hs_amb_Profile_Tasks.Update(TaskId, ProfileNr, Subject, StartDate, EndDate, chkMonday, chkTuesday, chkWednesday, chkThursday, chkFriday, chkSaturday, chkSunday, yearsRepeatable)
+        Return SCP.BLL.hs_Cron_Profile_Tasks.Update(TaskId, ProfileNr, Subject, StartDate, EndDate, chkMonday, chkTuesday, chkWednesday, chkThursday, chkFriday, chkSaturday, chkSunday, yearsRepeatable)
     End Function
-#End Region
-#Region "hs_amb_Calendar"
+
     <OperationContract()>
     <WebGet()>
-    Public Function hs_amb_Calendar_Add(CronId As Integer, Calyear As Integer, Calmonth As Integer, strmonthData As String) As Boolean
+    Public Function hs_Cron_Profile_Tasks_Update_Repeat(IdAmbiente As Integer,
+                                                 CronId As Integer,
+                                                 ProfileNr As Integer,
+                                                 Subject As String,
+                                                 StartDate As String,
+                                                 EndDate As String,
+                                                 chkMonday As Boolean,
+                                                 chkTuesday As Boolean,
+                                                 chkWednesday As Boolean,
+                                                 chkThursday As Boolean,
+                                                 chkFriday As Boolean,
+                                                 chkSaturday As Boolean,
+                                                 chkSunday As Boolean,
+                                                 yearsRepeatable As Boolean) As Boolean
+
+        If ProfileNr < 0 Then Return Nothing
+        If String.IsNullOrEmpty(Subject) Then Return Nothing
+        Return SCP.BLL.hs_Cron_Profile_Tasks.Update_Repeat(IdAmbiente, CronId, ProfileNr, Subject, StartDate, EndDate, chkMonday, chkTuesday, chkWednesday, chkThursday, chkFriday, chkSaturday, chkSunday, yearsRepeatable)
+    End Function
+#End Region
+#Region "hs_Cron_Calendar"
+    <OperationContract()>
+    <WebGet()>
+    Public Function hs_Cron_Calendar_Add(CronId As Integer, Calyear As Integer, Calmonth As Integer, strmonthData As String) As Boolean
         If CronId <= 0 Then Return False
         If Calyear <= 0 Then Return False
         If Calmonth <= 0 Then Return False
@@ -2946,124 +3129,159 @@ Public Class S1
         For x As Integer = 0 To 31
             monthData(x) = CInt(ar(x))
         Next
-        Return SCP.BLL.hs_amb_Calendar.Add(CronId, Calyear, Calmonth, monthData)
+        Return SCP.BLL.hs_Cron_Calendar.Add(CronId, Calyear, Calmonth, monthData)
     End Function
 
     <OperationContract()>
     <WebGet()>
-    Public Function hs_amb_Calendar_Read(CronId As Integer, Calyear As Integer, Calmonth As Integer) As hs_amb_Calendar
+    Public Function hs_Cron_Calendar_Read(CronId As Integer, Calyear As Integer, Calmonth As Integer) As hs_Cron_Calendar
         If CronId <= 0 Then Return Nothing
         If Calyear <= 0 Then Return Nothing
         If Calmonth <= 0 Then Return Nothing
         If Calmonth > 12 Then Return Nothing
-        Return SCP.BLL.hs_amb_Calendar.Read(CronId, Calyear, Calmonth)
+        Return SCP.BLL.hs_Cron_Calendar.Read(CronId, Calyear, Calmonth)
     End Function
 
     <OperationContract()>
     <WebGet()>
-    Public Function hs_amb_CalendarReadFromDB(CronId As Integer, Calyear As Integer, Calmonth As Integer) As hs_amb_Calendar
+    Public Function hs_Cron_CalendarReadFromDB(CronId As Integer, Calyear As Integer, Calmonth As Integer) As hs_Cron_Calendar
         If CronId <= 0 Then Return Nothing
         If Calyear <= 0 Then Return Nothing
         If Calmonth <= 0 Then Return Nothing
         If Calmonth > 12 Then Return Nothing
-        Return SCP.BLL.hs_amb_Calendar.Read(CronId, Calyear, Calmonth)
+        Return SCP.BLL.hs_Cron_Calendar.Read(CronId, Calyear, Calmonth)
     End Function
 
     <OperationContract()>
     <WebGet()>
-    Public Function hs_amb_Calendar_UpdateDesired(CronId As Integer, Calyear As Integer, Calmonth As Integer, strmonthData As String) As Boolean
+    Public Function hs_Cron_Calendar_replaceDesiredWithTask(CronId As Integer, Calyear As Integer, Calmonth As Integer) As Boolean
+        If CronId <= 0 Then Return False
+        If Calyear <= 0 Then Return False
+        If Calmonth <= 0 Then Return False
+        If Calmonth > 12 Then Return False
+        Return SCP.BLL.hs_Cron_Calendar.replaceDesiredWithTask(CronId, Calyear, Calmonth)
+    End Function
+
+    <OperationContract()>
+    <WebGet()>
+    Public Function hs_Cron_Calendar_UpdateDesired(CronId As Integer, Calyear As Integer, Calmonth As Integer, strmonthData As String) As Boolean
         If CronId <= 0 Then Return False
         If Calyear <= 0 Then Return False
         If Calmonth <= 0 Then Return False
         If Calmonth > 12 Then Return False
         Dim DesiredMonthData As Integer() = New Integer(31) {}
-        Dim ar() As String = strmonthData.Split(";")
-        For x As Integer = 0 To ar.Length - 2
-            DesiredMonthData(x) = CInt(ar(x))
-        Next
-        Return SCP.BLL.hs_amb_Calendar.UpdateDesired(CronId, Calyear, Calmonth, DesiredMonthData)
+        Try
+            Dim ar() As String = strmonthData.Split(";")
+            For x As Integer = 0 To ar.Length - 2
+                DesiredMonthData(x) = CInt(ar(x))
+            Next
+        Catch ex As Exception
+            Dim m_error As String = ex.Message
+        End Try
+
+        Return SCP.BLL.hs_Cron_Calendar.UpdateDesired(CronId, Calyear, Calmonth, DesiredMonthData)
     End Function
 
     <OperationContract()>
     <WebGet()>
-    Public Function hs_amb_Calendar_get(CronId As Integer, Calyear As Integer, Calmonth As Integer) As hs_amb_Calendar
-        Return SCP.BLL.hs_amb_Calendar.CalendarGet(CronId, Calyear, Calmonth)
+    Public Function hs_Cron_Calendar_get(CronId As Integer, Calyear As Integer, Calmonth As Integer) As hs_Cron_Calendar
+        Return SCP.BLL.hs_Cron_Calendar.CalendarGet(CronId, Calyear, Calmonth)
     End Function
 
     <OperationContract()>
     <WebGet()>
-    Public Function hs_amb_Calendar_Set(CronId As Integer, Calyear As Integer, Calmonth As Integer) As Boolean
-        Return SCP.BLL.hs_amb_Calendar.CalendarSet(CronId, Calyear, Calmonth)
+    Public Function hs_Cron_Calendar_Set(CronId As Integer, Calyear As Integer, Calmonth As Integer) As Boolean
+        Return SCP.BLL.hs_Cron_Calendar.CalendarSet(CronId, Calyear, Calmonth)
+    End Function
+
+    <OperationContract()>
+    <WebGet()>
+    Public Function CalendarSetMultiple(CronId As Integer, Calyear As Integer, Calmonth As Integer, IdAmbiente As Integer) As Boolean
+        Return SCP.BLL.hs_Cron_Calendar.CalendarSetMultiple(CronId, Calyear, Calmonth, IdAmbiente)
     End Function
 
 #End Region
-#Region "log_hs_Cron"
+
+#Region "hs_businesshour"
     <OperationContract()>
     <WebGet()>
-    Public Function log_hs_Cron_List(hsId As Integer, CronCod As String, fromDate As String, toDate As String) As List(Of log_hs_Cron)
-        If hsId <= 0 Then
-            Return Nothing
-        End If
-        If String.IsNullOrEmpty(CronCod) Then
-            Return Nothing
-        End If
-        Dim _fromDate As Date = CDate(fromDate)
-        Dim a As Date = CDate(toDate)
-        Dim b As Date = DateAdd(DateInterval.Day, 1, a)
-        Dim _toDate As Date = DateAdd(DateInterval.Minute, -1, b)
-        Return SCP.BLL.log_hs_Cron.List(hsId, CronCod, _fromDate, _toDate)
+    Public Function hs_businesshour_Add(hsId As Integer,
+                                         isClosedTime As Boolean,
+                                         Subject As String,
+                                         StartDate As String,
+                                         EndDate As String,
+                                         chkMonday As Boolean,
+                                         chkTuesday As Boolean,
+                                         chkWednesday As Boolean,
+                                         chkThursday As Boolean,
+                                         chkFriday As Boolean,
+                                         chkSaturday As Boolean,
+                                         chkSunday As Boolean) As Boolean
+        If hsId <= 0 Then Return False
+        If String.IsNullOrEmpty(Subject) Then Return False
+
+        Return SCP.BLL.hs_businesshour.Add(hsId, isClosedTime, Subject, StartDate, EndDate, chkMonday, chkTuesday, chkWednesday, chkThursday, chkFriday, chkSaturday, chkSunday)
     End Function
 
     <OperationContract()>
     <WebGet()>
-    Public Function log_hs_Cron_ListPaged(hsId As Integer, CronCod As String, fromDate As String, toDate As String, rowNumber As Integer) As List(Of log_hs_Cron)
-        If hsId <= 0 Then
-            Return Nothing
-        End If
-        If String.IsNullOrEmpty(CronCod) Then
-            Return Nothing
-        End If
-
-        Dim _fromDate As Date = CDate(fromDate)
-        Dim a As Date = CDate(toDate)
-        Dim b As Date = DateAdd(DateInterval.Day, 1, a)
-        Dim _toDate As Date = DateAdd(DateInterval.Minute, -1, b)
-
-        Return SCP.BLL.log_hs_Cron.ListPaged(hsId, CronCod, _fromDate, _toDate, rowNumber)
+    Public Function hs_businesshour_Del(Id As Integer) As Boolean
+        If Id <= 0 Then Return False
+        Return SCP.BLL.hs_businesshour.Del(Id)
     End Function
 
     <OperationContract()>
     <WebGet()>
-    Public Function log_hs_Cron_ListAll(hsId As Integer, fromDate As String, toDate As String) As List(Of log_hs_Cron)
-        If hsId <= 0 Then
-            Return Nothing
-        End If
-        Dim _fromDate As Date = CDate(fromDate)
-        Dim a As Date = CDate(toDate)
-        Dim b As Date = DateAdd(DateInterval.Day, 1, a)
-        Dim _toDate As Date = DateAdd(DateInterval.Minute, -1, b)
-        Return SCP.BLL.log_hs_Cron.ListAll(hsId, _fromDate, _toDate)
+    Public Function hs_businesshour_List(hsId As Integer) As List(Of hs_businesshour)
+        If hsId <= 0 Then Return Nothing
+        Return SCP.BLL.hs_businesshour.List(hsId)
     End Function
+
+    <OperationContract()>
+    <WebGet()>
+    Public Function hs_businesshour_ListByMonth(hsId As Integer, calYear As Integer, calMonth As Integer) As List(Of hs_businesshour)
+        Return SCP.BLL.hs_businesshour.ListByMonth(hsId, calYear, calMonth)
+    End Function
+
+    <OperationContract()>
+    <WebGet()>
+    Public Function hs_businesshour_ListCurrent(hsId As Integer, selDate As String) As List(Of hs_businesshour)
+        If hsId <= 0 Then Return Nothing
+        Dim _selDate As Date = Now
+        If Not String.IsNullOrEmpty(selDate) Then
+            _selDate = FormatDateTime(selDate, DateFormat.GeneralDate) ' CDate(selDate)
+        End If
+        Return SCP.BLL.hs_businesshour.ListCurrent(hsId, _selDate)
+    End Function
+
+    <OperationContract()>
+    <WebGet()>
+    Public Function hs_businesshour_Read(Id As Integer) As hs_businesshour
+        If Id <= 0 Then Return Nothing
+        Return SCP.BLL.hs_businesshour.Read(Id)
+    End Function
+
+    <OperationContract()>
+    <WebGet()>
+    Public Function hs_businesshour_Update(Id As Integer,
+                                  isClosedTime As Boolean,
+                                  Subject As String,
+                                  StartDate As String,
+                                  EndDate As String,
+                                  chkMonday As Boolean,
+                                  chkTuesday As Boolean,
+                                  chkWednesday As Boolean,
+                                  chkThursday As Boolean,
+                                  chkFriday As Boolean,
+                                  chkSaturday As Boolean,
+                                  chkSunday As Boolean) As Boolean
+        If Id <= 0 Then Return Nothing
+        If String.IsNullOrEmpty(Subject) Then Return Nothing
+
+        Return SCP.BLL.hs_businesshour.Update(Id, isClosedTime, Subject, StartDate, EndDate, chkMonday, chkTuesday, chkWednesday, chkThursday, chkFriday, chkSaturday, chkSunday)
+    End Function
+
 #End Region
 
-#Region "Ambienti"
-    <OperationContract()>
-    <WebGet()>
-    Public Function Ambienti_List(hsId As Integer) As List(Of Ambienti)
-        If hsId <= 0 Then
-            Return Nothing
-        End If
-        Return SCP.BLL.Ambienti.List(hsId)
-    End Function
-
-    <OperationContract()>
-    <WebGet()>
-    Public Function Ambienti_Read(IdAmbiente As Integer) As Ambienti
-        If IdAmbiente <= 0 Then
-            Return Nothing
-        End If
-        Return SCP.BLL.Ambienti.Read(IdAmbiente)
-    End Function
-#End Region
 
 End Class

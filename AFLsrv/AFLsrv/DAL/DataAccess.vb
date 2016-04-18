@@ -313,6 +313,8 @@ Namespace SCP.DAL
         Public MustOverride Function LuxM_setGeoLocation(Id As Integer, Latitude As Decimal, Longitude As Decimal) As Boolean
         Public MustOverride Function LuxM_setCurrentMode(Id As Integer, currentMode As Integer) As Boolean
         Public MustOverride Function LuxM_setLightByCod(hsId As Integer, Cod As String, LightON As Boolean) As Boolean
+        Public MustOverride Function Lux_setCurrentMode(Id As Integer, currentMode As Integer) As Boolean
+        Public MustOverride Function Lux_setisManual(Id As Integer, isManual As Boolean) As Boolean
 #End Region
 #Region "LuxM_replacement_history"
         Public MustOverride Function LuxM_replacement_history_Add(ParentId As Integer, marcamodello As String, installationDate As Date, note As String, userName As String) As Boolean
@@ -421,6 +423,47 @@ Namespace SCP.DAL
         Public MustOverride Function hs_Cron_setStatus(hsId As Integer, CronCod As String, SetPoint As Decimal, stato As Integer) As Boolean
         Public MustOverride Function hs_Cron_setGeoLocation(CronId As Integer, Latitude As Decimal, Longitude As Decimal) As Boolean
 #End Region
+#Region "hs_Cron_Profile"
+        Public MustOverride Function hs_Cron_Profile_Add(CronId As Integer, ProfileY As Integer, ProfileNr As Integer, descr As String, ProfileData As Decimal()) As Boolean
+        Public MustOverride Function hs_Cron_Profile_Clear(CronId As Integer) As Boolean
+        Public MustOverride Function hs_Cron_Profile_List(CronId As Integer, ProfileY As Integer) As List(Of hs_Cron_Profile)
+        Public MustOverride Function hs_Cron_Profile_Read(CronId As Integer, ProfileY As Integer, ProfileNr As Integer) As hs_Cron_Profile
+        Public MustOverride Function hs_Cron_Profile_Update(CronId As Integer, ProfileY As Integer, ProfileNr As Integer, descr As String, ProfileData As Decimal()) As Boolean
+#End Region
+#Region "hs_Cron_Profile_Descr"
+        Public MustOverride Function hs_Cron_Profile_Descr_Add(CronId As Integer, ProfileNr As Integer, descr As String) As Boolean
+        Public MustOverride Function hs_Cron_Profile_Descr_Del(CronId As Integer, ProfileNr As Integer) As Boolean
+        Public MustOverride Function hs_Cron_Profile_Descr_List(CronId As Integer) As List(Of hs_Cron_Profile_Descr)
+        Public MustOverride Function hs_Cron_Profile_Descr_Read(CronId As Integer, ProfileNr As Integer) As hs_Cron_Profile_Descr
+        Public MustOverride Function hs_Cron_Profile_Descr_Update(CronId As Integer, ProfileNr As Integer, descr As String) As Boolean
+#End Region
+#Region "hs_Cron_Profile_Tasks"
+        Public MustOverride Function hs_Cron_Profile_Tasks_Add(CronId As Integer, ProfileNr As Integer, Subject As String, StartDate As Date, EndDate As Date, RecurrencePattern As String, ExceptionAppointments As String, yearsRepeatable As Boolean) As Boolean
+        Public MustOverride Function hs_Cron_Profile_Tasks_Del(TaskId As Integer) As Boolean
+        Public MustOverride Function hs_Cron_Profile_Tasks_List(CronId As Integer) As List(Of hs_Cron_Profile_Tasks)
+        Public MustOverride Function hs_Cron_Profile_Tasks_ListAll() As List(Of hs_Cron_Profile_Tasks)
+        Public MustOverride Function hs_Cron_Profile_Tasks_Read(TaskId As Integer) As hs_Cron_Profile_Tasks
+        Public MustOverride Function hs_Cron_Profile_Tasks_Update(TaskId As Integer, ProfileNr As Integer, Subject As String, StartDate As Date, EndDate As Date, RecurrencePattern As String, ExceptionAppointments As String, yearsRepeatable As Boolean) As Boolean
+        Public MustOverride Function hs_Cron_Profile_Tasks_Update_Repeat(IdAmbiente As Integer, CronId As Integer, ProfileNr As Integer, Subject As String, StartDate As Date, EndDate As Date, RecurrencePattern As String, ExceptionAppointments As String, yearsRepeatable As Boolean) As Boolean
+
+
+#End Region
+#Region "hs_Cron_Calendar"
+        Public MustOverride Function hs_Cron_Calendar_Add(CronId As Integer, Calyear As Integer, Calmonth As Integer, monthData As Integer()) As Boolean
+        Public MustOverride Function hs_Cron_Calendar_Clear(CronId) As Boolean
+        Public MustOverride Function hs_Cron_Calendar_Read(CronId As Integer, Calyear As Integer, Calmonth As Integer) As hs_Cron_Calendar
+        Public MustOverride Function hs_Cron_Calendar_replaceDesiredWithTask(CronId As Integer, Calyear As Integer, Calmonth As Integer) As Boolean
+        Public MustOverride Function hs_Cron_Calendar_Update(CronId As Integer, Calyear As Integer, Calmonth As Integer, TasksForDesired As Integer(), DesiredMonthData As Integer()) As Boolean
+        Public MustOverride Function hs_Cron_Calendar_UpdateDesired(CronId As Integer, Calyear As Integer, Calmonth As Integer, DesiredMonthData As Integer()) As Boolean
+        Public MustOverride Function hs_Cron_Calendar_UpdateReal(CronId As Integer, Calyear As Integer, Calmonth As Integer, RealMonthData As Integer()) As Boolean
+#End Region
+#Region "hs_businesshour"
+        Public MustOverride Function hs_businesshour_Add(hsId As Integer, isClosedTime As Boolean, Subject As String, StartDate As Date, EndDate As Date, RecurrencePattern As String, ExceptionAppointments As String) As Boolean
+        Public MustOverride Function hs_businesshour_Del(Id As Integer) As Boolean
+        Public MustOverride Function hs_businesshour_List(hsId As Integer) As List(Of hs_businesshour)
+        Public MustOverride Function hs_businesshour_Read(Id As Integer) As hs_businesshour
+        Public MustOverride Function hs_businesshour_Update(Id As Integer, isClosedTime As Boolean, Subject As String, StartDate As String, EndDate As String, RecurrencePattern As String, ExceptionAppointments As String) As Boolean
+#End Region
 #Region "hs_Cron_replacement_history"
         Public MustOverride Function hs_Cron_replacement_history_Add(ParentId As Integer, marcamodello As String, installationDate As Date, note As String, userName As String) As Boolean
         Public MustOverride Function hs_Cron_replacement_history_Del(Id As Integer) As Boolean
@@ -428,36 +471,7 @@ Namespace SCP.DAL
         Public MustOverride Function hs_Cron_replacement_history_Read(Id As Integer) As hs_Cron_replacement_history
         Public MustOverride Function hs_Cron_replacement_history_Update(Id As Integer, marcamodello As String, installationDate As Date, note As String, userName As String) As Boolean
 #End Region
-#Region "hs_amb_Profile"
-        Public MustOverride Function hs_amb_Profile_Add(CronId As Integer, ProfileY As Integer, ProfileNr As Integer, descr As String, ProfileData As Decimal()) As Boolean
-        Public MustOverride Function hs_amb_Profile_Clear(CronId As Integer) As Boolean
-        Public MustOverride Function hs_amb_Profile_List(CronId As Integer, ProfileY As Integer) As List(Of hs_amb_Profile)
-        Public MustOverride Function hs_amb_Profile_Read(CronId As Integer, ProfileY As Integer, ProfileNr As Integer) As hs_amb_Profile
-        Public MustOverride Function hs_amb_Profile_Update(CronId As Integer, ProfileY As Integer, ProfileNr As Integer, descr As String, ProfileData As Decimal()) As Boolean
-#End Region
-#Region "hs_amb_Profile_Descr"
-        Public MustOverride Function hs_amb_Profile_Descr_Add(CronId As Integer, ProfileNr As Integer, descr As String) As Boolean
-        Public MustOverride Function hs_amb_Profile_Descr_Del(CronId As Integer, ProfileNr As Integer) As Boolean
-        Public MustOverride Function hs_amb_Profile_Descr_List(CronId As Integer) As List(Of hs_amb_Profile_Descr)
-        Public MustOverride Function hs_amb_Profile_Descr_Read(CronId As Integer, ProfileNr As Integer) As hs_amb_Profile_Descr
-        Public MustOverride Function hs_amb_Profile_Descr_Update(CronId As Integer, ProfileNr As Integer, descr As String) As Boolean
-#End Region
-#Region "hs_amb_Profile_Tasks"
-        Public MustOverride Function hs_amb_Profile_Tasks_Add(CronId As Integer, ProfileNr As Integer, Subject As String, StartDate As Date, EndDate As Date, RecurrencePattern As String, ExceptionAppointments As String, yearsRepeatable As Boolean) As Boolean
-        Public MustOverride Function hs_amb_Profile_Tasks_Del(CronId As Integer, ProfileNr As Integer) As Boolean
-        Public MustOverride Function hs_amb_Profile_Tasks_List(CronId As Integer) As List(Of hs_amb_Profile_Tasks)
-        Public MustOverride Function hs_amb_Profile_Tasks_ListAll() As List(Of hs_amb_Profile_Tasks)
-        Public MustOverride Function hs_amb_Profile_Tasks_Read(TaskId As Integer) As hs_amb_Profile_Tasks
-        Public MustOverride Function hs_amb_Profile_Tasks_Update(TaskId As Integer, ProfileNr As Integer, Subject As String, StartDate As Date, EndDate As Date, RecurrencePattern As String, ExceptionAppointments As String, yearsRepeatable As Boolean) As Boolean
-#End Region
-#Region "hs_amb_Calendar"
-        Public MustOverride Function hs_amb_Calendar_Add(CronId As Integer, Calyear As Integer, Calmonth As Integer, monthData As Integer()) As Boolean
-        Public MustOverride Function hs_amb_Calendar_Clear(CronId) As Boolean
-        Public MustOverride Function hs_amb_Calendar_Read(CronId As Integer, Calyear As Integer, Calmonth As Integer) As hs_amb_Calendar
-        Public MustOverride Function hs_amb_Calendar_Update(CronId As Integer, Calyear As Integer, Calmonth As Integer, TasksForDesired As Integer(), DesiredMonthData As Integer()) As Boolean
-        Public MustOverride Function hs_amb_Calendar_UpdateDesired(CronId As Integer, Calyear As Integer, Calmonth As Integer, DesiredMonthData As Integer()) As Boolean
-        Public MustOverride Function hs_amb_Calendar_UpdateReal(CronId As Integer, Calyear As Integer, Calmonth As Integer, RealMonthData As Integer()) As Boolean
-#End Region
+
 #Region "log_hs_Cron"
         Public MustOverride Function log_hs_Cron_Add(hsId As Integer, SetPoint As Decimal, CronCod As String, CronDescr As String, stato As Integer, dtLog As Date) As Boolean
         Public MustOverride Function log_hs_Cron_List(hsId As Integer, CronCod As String, fromDate As Date, toDate As Date) As List(Of log_hs_Cron)
@@ -477,16 +491,24 @@ Namespace SCP.DAL
         Public MustOverride Function Lux_last_Upd(hsId As Integer, Cod As String, lastLog As Integer, lastdtLog As Date) As Boolean
         Public MustOverride Function Lux_last_Read(hsId As Integer, Cod As String) As Lux_last
 #End Region
+#Region "LuxCron"
+        Public MustOverride Function LuxCron_Add(LuxId As Integer, CronId As Integer, UserName As String) As Boolean
+        Public MustOverride Function LuxCron_Del(Id As Integer) As Boolean
+        Public MustOverride Function LuxCron_List(LuxId As Integer) As List(Of LuxCron)
+        Public MustOverride Function LuxCron_Read(Id As Integer) As LuxCron
+
+#End Region
 #Region "Ambienti"
         'Public MustOverride Function Ambienti_Add(IdAmbiente As Integer, Cod As String, Descr As String, UserName As String, marcamodello As String, installationDate As Date) As Boolean
         ' Public MustOverride Function Ambienti_Del(Id As Integer) As Boolean
         Public MustOverride Function Ambienti_List(hsId As Integer) As List(Of Ambienti)
-        Public MustOverride Function Ambienti_Read(IdAmbiente As Integer) As Ambienti
-        'Public MustOverride Function Ambienti_ReadByCod(IdAmbiente As Integer, Cod As String) As Ambienti
+        Public MustOverride Function Ambienti_Read(hsId As Integer, IdAmbiente As Integer) As Ambienti
+        Public MustOverride Function Ambienti_SetCron(hsId As Integer, IdAmbiente As Integer, CronCod As String) As Ambienti
         'Public MustOverride Function Ambienti_Update(Id As Integer, Cod As String, Descr As String, UserName As String, marcamodello As String, installationDate As Date) As Boolean
         'Public MustOverride Function Ambienti_setStatus(IdAmbiente As Integer, Cod As String, stato As Integer) As Boolean
         'Public MustOverride Function Ambienti_setValue(IdAmbiente As Integer, Cod As String, currentValue As Integer) As Boolean
         'Public MustOverride Function Ambienti_setGeoLocation(Id As Integer, Latitude As Decimal, Longitude As Decimal) As Boolean
 #End Region
+
     End Class
 End Namespace

@@ -18,7 +18,7 @@ Namespace SCP.BLL
 
 #Region "constructor"
         Public Sub New()
-            Me.New(0, 0, String.Empty, String.Empty, FormatDateTime("01/01/1900", DateFormat.GeneralDate), String.Empty, FormatDateTime("01/01/1900", DateFormat.GeneralDate), 0, 0, 0, 0, 0, False, 0, False, False, False, 0)
+            Me.New(0, 0, String.Empty, String.Empty, FormatDateTime("01/01/1900", DateFormat.GeneralDate), String.Empty, FormatDateTime("01/01/1900", DateFormat.GeneralDate), 0, 0, 0, 0, 0, False, 0, False, False, False, 0, 0)
         End Sub
         Public Sub New(m_Id As Integer,
                        m_hsId As Integer,
@@ -37,7 +37,8 @@ Namespace SCP.BLL
                        m_forcedOn As Boolean,
                        m_forcedOff As Boolean,
                        m_isManual As Boolean,
-                       m_IdAmbiente As Integer)
+                       m_IdAmbiente As Integer,
+                       m_RemoteConnId As Integer)
 
 
             Id = m_Id
@@ -63,6 +64,7 @@ Namespace SCP.BLL
             forcedOff = m_forcedOff
             isManual = m_isManual
             IdAmbiente = m_IdAmbiente
+            RemoteConnId = m_RemoteConnId
         End Sub
 #End Region
 
@@ -217,6 +219,270 @@ Namespace SCP.BLL
             Return retVal
         End Function
 
+        Public Shared Function setCurrentMode(Id As Integer, currentMode As Integer) As Boolean
+            If Id <= 0 Then Return False
+            Return DataAccessHelper.GetDataAccess.Lux_setCurrentMode(Id, currentMode)
+        End Function
+
+        Public Shared Function setisManual(Id As Integer, isManual As Boolean) As Boolean
+            If Id <= 0 Then Return False
+            Return DataAccessHelper.GetDataAccess.Lux_setisManual(Id, isManual)
+        End Function
+
+        Public Shared Function cmd_LightOn(Id As Integer) As Boolean
+            Dim retVal As Boolean = False
+
+            If Id <= 0 Then Return False
+
+            Dim RemoteConnId As Integer = 0
+            Dim Cod As String = String.Empty
+            Dim hsId As Integer = 0
+            Dim m_Lux As SCP.BLL.Lux = SCP.BLL.Lux.Read(Id)
+            If Not m_Lux Is Nothing Then
+                Cod = m_Lux.Cod
+                hsId = m_Lux.hsId
+                RemoteConnId = m_Lux.RemoteConnId
+                m_Lux = Nothing
+            End If
+
+            Dim connectionType As Integer = 0
+            Dim remoteAddress As String = String.Empty
+            Dim remotePort As Integer = 0
+            If RemoteConnId <= 0 Then
+                Dim hs As SCP.BLL.HeatingSystem = SCP.BLL.HeatingSystem.Read(hsId)
+                If Not hs Is Nothing Then
+                    If hs.VPNConnectionId > 0 Then
+                        Dim remoteConnection As SCP.BLL.Impianti_RemoteConnections = SCP.BLL.Impianti_RemoteConnections.Read(hs.IdImpianto, hs.VPNConnectionId)
+                        If Not remoteConnection Is Nothing Then
+                            If remoteConnection.connectionType = 2 Or remoteConnection.connectionType = 3 Then
+                                connectionType = remoteConnection.connectionType
+                                remoteAddress = remoteConnection.remoteAddress
+                                remotePort = remoteConnection.remotePort
+                            End If
+                            remoteConnection = Nothing
+                        End If
+                    End If
+                    hs = Nothing
+                End If
+
+            Else
+                Dim hs As SCP.BLL.HeatingSystem = SCP.BLL.HeatingSystem.Read(hsId)
+                If Not hs Is Nothing Then
+                    Dim remoteConnection As SCP.BLL.Impianti_RemoteConnections = SCP.BLL.Impianti_RemoteConnections.Read(hs.IdImpianto, RemoteConnId)
+                    If Not remoteConnection Is Nothing Then
+                        If remoteConnection.connectionType = 2 Or remoteConnection.connectionType = 3 Then
+                            connectionType = remoteConnection.connectionType
+                            remoteAddress = remoteConnection.remoteAddress
+                            remotePort = remoteConnection.remotePort
+                        End If
+                        remoteConnection = Nothing
+                    End If
+                End If
+            End If
+            If remotePort <= 0 Then Return False
+
+            Dim i As Int16 = 0
+            Dim s As String = String.Empty
+
+            Dim sendObj As String = "1E00"
+            Dim inx As Integer = CInt(Replace(Cod, "LUX", String.Empty))
+            Dim sendIdx As String = UCase(Convert.ToString(inx, 16).PadLeft(2, "0")) & "00"
+            Dim sendCmd As String = "0200"
+            Dim sendLen As String = "0000"
+            Dim sendData As String = String.Empty
+
+            Dim sendString As String = sendObj & sendIdx & sendCmd & sendLen & sendData
+
+            Dim m_gmDsm As gmDsmResponse = New gmDsmResponse
+            Dim _wr As New hsdsm
+            m_gmDsm = _wr.send(connectionType, remoteAddress, remotePort, sendString)
+            _wr = Nothing
+
+            If m_gmDsm.returnValue = True Then
+                If m_gmDsm.returnData.Length >= 16 Then
+                    Dim responseObj As String = Mid(m_gmDsm.returnData, 1, 4)
+                    Dim responseIdx As String = Mid(m_gmDsm.returnData, 5, 4)
+                    Dim responseCod As String = Mid(m_gmDsm.returnData, 9, 4)
+                    If responseCod = "0000" Then
+                        retVal = True
+                    End If
+                End If
+            End If
+            If retVal = True Then
+                setLightByCod(hsId, Cod, True)
+                setCurrentMode(Id, 0)
+            End If
+            Return retVal
+        End Function
+
+        Public Shared Function cmd_LightOff(Id As Integer) As Boolean
+            Dim retVal As Boolean = False
+
+            If Id <= 0 Then Return False
+            Dim RemoteConnId As Integer = 0
+            Dim Cod As String = String.Empty
+            Dim hsId As Integer = 0
+            Dim m_Lux As SCP.BLL.Lux = SCP.BLL.Lux.Read(Id)
+            If Not m_Lux Is Nothing Then
+                Cod = m_Lux.Cod
+                hsId = m_Lux.hsId
+                RemoteConnId = m_Lux.RemoteConnId
+                m_Lux = Nothing
+            End If
+
+            Dim connectionType As Integer = 0
+            Dim remoteAddress As String = String.Empty
+            Dim remotePort As Integer = 0
+            If RemoteConnId <= 0 Then
+                Dim hs As SCP.BLL.HeatingSystem = SCP.BLL.HeatingSystem.Read(hsId)
+                If Not hs Is Nothing Then
+                    If hs.VPNConnectionId > 0 Then
+                        Dim remoteConnection As SCP.BLL.Impianti_RemoteConnections = SCP.BLL.Impianti_RemoteConnections.Read(hs.IdImpianto, hs.VPNConnectionId)
+                        If Not remoteConnection Is Nothing Then
+                            If remoteConnection.connectionType = 2 Or remoteConnection.connectionType = 3 Then
+                                connectionType = remoteConnection.connectionType
+                                remoteAddress = remoteConnection.remoteAddress
+                                remotePort = remoteConnection.remotePort
+                            End If
+                            remoteConnection = Nothing
+                        End If
+                    End If
+                    hs = Nothing
+                End If
+
+            Else
+                Dim hs As SCP.BLL.HeatingSystem = SCP.BLL.HeatingSystem.Read(hsId)
+                If Not hs Is Nothing Then
+                    Dim remoteConnection As SCP.BLL.Impianti_RemoteConnections = SCP.BLL.Impianti_RemoteConnections.Read(hs.IdImpianto, RemoteConnId)
+                    If Not remoteConnection Is Nothing Then
+                        If remoteConnection.connectionType = 2 Or remoteConnection.connectionType = 3 Then
+                            connectionType = remoteConnection.connectionType
+                            remoteAddress = remoteConnection.remoteAddress
+                            remotePort = remoteConnection.remotePort
+                        End If
+                        remoteConnection = Nothing
+                    End If
+                End If
+            End If
+            If remotePort <= 0 Then Return False
+
+            Dim i As Int16 = 0
+            Dim s As String = String.Empty
+
+            Dim sendObj As String = "1E00"
+            Dim inx As Integer = CInt(Replace(Cod, "LUX", String.Empty))
+            Dim sendIdx As String = UCase(Convert.ToString(inx, 16).PadLeft(2, "0")) & "00"
+            Dim sendCmd As String = "0300"
+            Dim sendLen As String = "0000"
+            Dim sendData As String = String.Empty
+
+            Dim sendString As String = sendObj & sendIdx & sendCmd & sendLen & sendData
+
+            Dim m_gmDsm As gmDsmResponse = New gmDsmResponse
+            Dim _wr As New hsdsm
+            m_gmDsm = _wr.send(connectionType, remoteAddress, remotePort, sendString)
+            _wr = Nothing
+
+            If m_gmDsm.returnValue = True Then
+                If m_gmDsm.returnData.Length >= 16 Then
+                    Dim responseObj As String = Mid(m_gmDsm.returnData, 1, 4)
+                    Dim responseIdx As String = Mid(m_gmDsm.returnData, 5, 4)
+                    Dim responseCod As String = Mid(m_gmDsm.returnData, 9, 4)
+                    If responseCod = "0000" Then
+                        retVal = True
+                    End If
+                End If
+            End If
+            If retVal = True Then
+                setLightByCod(hsId, Cod, False)
+                setCurrentMode(Id, 0)
+            End If
+            Return retVal
+        End Function
+
+        Public Shared Function cmd_RestoreWorkingMode(Id As Integer) As Boolean
+            Dim retVal As Boolean = False
+
+            If Id <= 0 Then Return False
+
+            Dim RemoteConnId As Integer = 0
+            Dim Cod As String = String.Empty
+            Dim hsId As Integer = 0
+            Dim m_Lux As SCP.BLL.Lux = SCP.BLL.Lux.Read(Id)
+            If Not m_Lux Is Nothing Then
+                Cod = m_Lux.Cod
+                hsId = m_Lux.hsId
+                RemoteConnId = m_Lux.RemoteConnId
+                m_Lux = Nothing
+            End If
+
+            Dim connectionType As Integer = 0
+            Dim remoteAddress As String = String.Empty
+            Dim remotePort As Integer = 0
+            If RemoteConnId <= 0 Then
+                Dim hs As SCP.BLL.HeatingSystem = SCP.BLL.HeatingSystem.Read(hsId)
+                If Not hs Is Nothing Then
+                    If hs.VPNConnectionId > 0 Then
+                        Dim remoteConnection As SCP.BLL.Impianti_RemoteConnections = SCP.BLL.Impianti_RemoteConnections.Read(hs.IdImpianto, hs.VPNConnectionId)
+                        If Not remoteConnection Is Nothing Then
+                            If remoteConnection.connectionType = 2 Or remoteConnection.connectionType = 3 Then
+                                connectionType = remoteConnection.connectionType
+                                remoteAddress = remoteConnection.remoteAddress
+                                remotePort = remoteConnection.remotePort
+                            End If
+                            remoteConnection = Nothing
+                        End If
+                    End If
+                    hs = Nothing
+                End If
+
+            Else
+                Dim hs As SCP.BLL.HeatingSystem = SCP.BLL.HeatingSystem.Read(hsId)
+                If Not hs Is Nothing Then
+                    Dim remoteConnection As SCP.BLL.Impianti_RemoteConnections = SCP.BLL.Impianti_RemoteConnections.Read(hs.IdImpianto, RemoteConnId)
+                    If Not remoteConnection Is Nothing Then
+                        If remoteConnection.connectionType = 2 Or remoteConnection.connectionType = 3 Then
+                            connectionType = remoteConnection.connectionType
+                            remoteAddress = remoteConnection.remoteAddress
+                            remotePort = remoteConnection.remotePort
+                        End If
+                        remoteConnection = Nothing
+                    End If
+                End If
+            End If
+            If remotePort <= 0 Then Return False
+
+            Dim i As Int16 = 0
+            Dim s As String = String.Empty
+
+            Dim sendObj As String = "1E00"
+            Dim inx As Integer = CInt(Replace(Cod, "LUX", String.Empty))
+            Dim sendIdx As String = UCase(Convert.ToString(inx, 16).PadLeft(2, "0")) & "00"
+            Dim sendCmd As String = "0000"
+            Dim sendLen As String = "0000"
+            Dim sendData As String = String.Empty
+
+            Dim sendString As String = sendObj & sendIdx & sendCmd & sendLen & sendData
+
+            Dim m_gmDsm As gmDsmResponse = New gmDsmResponse
+            Dim _wr As New hsdsm
+            m_gmDsm = _wr.send(connectionType, remoteAddress, remotePort, sendString)
+            _wr = Nothing
+
+            If m_gmDsm.returnValue = True Then
+                If m_gmDsm.returnData.Length >= 16 Then
+                    Dim responseObj As String = Mid(m_gmDsm.returnData, 1, 4)
+                    Dim responseIdx As String = Mid(m_gmDsm.returnData, 5, 4)
+                    Dim responseCod As String = Mid(m_gmDsm.returnData, 9, 4)
+                    If responseCod = "0000" Then
+                        retVal = True
+                    End If
+                End If
+            End If
+
+            Return retVal
+        End Function
+
 #End Region
 
 #Region "public properties"
@@ -242,6 +508,7 @@ Namespace SCP.BLL
         Public Property forcedOff As Boolean
         Public Property isManual As Boolean
         Public Property IdAmbiente As Integer
+        Public Property RemoteConnId As Integer
 #End Region
     End Class
 End Namespace

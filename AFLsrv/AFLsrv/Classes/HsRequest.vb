@@ -26,17 +26,31 @@ Public Class HsRequest
             PacketVersion = Convert.ToInt32(markStatus.Get("V"))
         End If
 
-        'Dim PacketType As Integer = 0
-        'If Not markStatus.Get("T") Is Nothing Then
-        '    PacketType = Convert.ToInt32(markStatus.Get("T"))
-        'End If
-
         Dim PacketDate As Date = FormatDateTime("01/01/1900", DateFormat.GeneralDate)
         If Not markStatus.Get("D") Is Nothing Then
             Dim reqPacketDate As String = markStatus.Get("D")
-            '2015-01-14-14:21:51
-            Dim strPacketDate As String = Mid(reqPacketDate, 9, 2) & "/" & Mid(reqPacketDate, 6, 2) & "/" & Mid(reqPacketDate, 1, 4) & Space(1) & Mid(reqPacketDate, 12)
-            PacketDate = FormatDateTime(strPacketDate, DateFormat.GeneralDate)
+            Try
+                Dim result As Date = Date.Parse(reqPacketDate)
+                PacketDate = FormatDateTime(result, DateFormat.GeneralDate)
+            Catch ex As Exception
+                '         1 11 11 11 
+                '1234 67 90 23 56 89
+                '2016-04-05-14:42:33
+
+                Dim m_year As Integer = 0
+                Dim m_month As Integer = 0
+                Dim m_day As Integer = 0
+                Dim m_hours As Integer = 0
+                Dim m_minutes As Integer = 0
+                Dim m_seconds As Integer = 0
+                m_year = CInt(Mid(reqPacketDate, 1, 4))
+                m_month = CInt(Mid(reqPacketDate, 6, 2))
+                m_day = CInt(Mid(reqPacketDate, 9, 2))
+                m_hours = CInt(Mid(reqPacketDate, 12, 2))
+                m_minutes = CInt(Mid(reqPacketDate, 15, 2))
+                m_seconds = CInt(Mid(reqPacketDate, 18, 2))
+                PacketDate = New Date(m_year, m_month, m_day, m_hours, m_minutes, m_seconds)
+            End Try
         End If
 
         Dim SystemStatus As Integer = 0

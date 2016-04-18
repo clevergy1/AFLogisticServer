@@ -17,15 +17,19 @@ Namespace SCP.BLL
     Public Class Ambienti
 #Region "constructor"
         Public Sub New()
-            Me.New(0, 0, String.Empty)
+            Me.New(0, 0, String.Empty, String.Empty, String.Empty)
         End Sub
         Public Sub New(m_hsId As Integer,
                        m_IdAmbiente As Integer,
-                       m_DescrizioneAmbiente As String)
+                       m_Cod As String,
+                       m_DescrizioneAmbiente As String,
+                       m_CronCod As String)
 
             hsId = m_hsId
             IdAmbiente = m_IdAmbiente
+            Cod = m_Cod
             DescrizioneAmbiente = m_DescrizioneAmbiente
+            CronCod = m_CronCod
 
 
         End Sub
@@ -41,11 +45,18 @@ Namespace SCP.BLL
             Return DataAccessHelper.GetDataAccess.Ambienti_List(hsId)
         End Function
 
-        Public Shared Function Read(IdAmbiente As Integer) As Ambienti
+        Public Shared Function Read(hsId As Integer, IdAmbiente As Integer) As Ambienti
             If IdAmbiente <= 0 Then
                 Return Nothing
             End If
-            Return DataAccessHelper.GetDataAccess.Ambienti_Read(IdAmbiente)
+            Return DataAccessHelper.GetDataAccess.Ambienti_Read(hsId, IdAmbiente)
+        End Function
+
+        Public Shared Function SetCron(hsId As Integer, IdAmbiente As Integer, CronCod As String) As Ambienti
+            If IdAmbiente <= 0 Then
+                Return Nothing
+            End If
+            Return DataAccessHelper.GetDataAccess.Ambienti_SetCron(hsId, IdAmbiente, CronCod)
         End Function
 
 
@@ -55,7 +66,9 @@ Namespace SCP.BLL
 #Region "public properties"
         Public Property hsId As Integer
         Public Property IdAmbiente As Integer
+        Public Property Cod As String
         Public Property DescrizioneAmbiente As String
+        Public Property CronCod As String
 #End Region
     End Class
 End Namespace
